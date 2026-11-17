@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soluciones Informática TI · Infraestructura, redes y soporte</title>
+<meta name="description" content="Venta de equipos, redes, videovigilancia y soporte técnico para empresas e instituciones del Estado.">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root{
+  --bg:#0e1a2b;
+  --bg-2:#101f36;
+  --panel:#15253f;
+  --panel-2:#1b2f4e;
+  --line:rgba(148,178,214,.14);
+  --line-strong:rgba(148,178,214,.26);
+  --ink:#eef3fb;
+  --muted:#9db2cf;
+  --dim:#6f86a6;
+  --orange:#f97316;
+  --orange-soft:#fb9d4b;
+  --orange-ink:#ffd9b0;
+  --cyan:#38bdf8;
+  --glow:rgba(249,115,22,.22);
+  --radius:18px;
+  --shadow:0 24px 60px rgba(5,12,24,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:
+    radial-gradient(1100px 620px at 80% -8%, rgba(56,189,248,.10), transparent 60%),
+    radial-gradient(900px 560px at 8% 4%, rgba(249,115,22,.12), transparent 58%),
+    linear-gradient(180deg,#0e1a2b 0%, #0c1626 100%);
+  color:var(--ink);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+h1,h2,h3,.brand-word{font-family:'Sora',sans-serif;letter-spacing:-.02em}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--orange-soft)}
+.eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:var(--orange)}
+
+/* NAV */
+nav{position:fixed;inset:0 0 auto 0;z-index:900;padding:18px 0;transition:.35s}
+nav.scrolled{padding:10px 0;background:rgba(12,22,38,.82);backdrop-filter:blur(18px) saturate(140%);border-bottom:1px solid var(--line)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo-img{height:46px;width:auto;display:block;filter:drop-shadow(0 6px 18px var(--glow))}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a.lnk{font-weight:600;font-size:.94rem;color:var(--muted);position:relative;padding:4px 0}
+.nav-links a.lnk::after{content:"";position:absolute;left:0;bottom:-2px;height:2px;width:0;background:var(--orange);transition:.3s}
+.nav-links a.lnk:hover{color:#fff}
+.nav-links a.lnk:hover::after{width:100%}
+.btn{display:inline-flex;align-items:center;gap:10px;font-weight:700;border-radius:12px;cursor:pointer;transition:.28s;border:1px solid transparent}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--orange-soft));color:#2a1402;padding:.72rem 1.4rem;box-shadow:0 10px 26px var(--glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(249,115,22,.4)}
+.btn-ghost{border-color:var(--line-strong);color:var(--ink);padding:.72rem 1.3rem;background:rgba(255,255,255,.02)}
+.btn-ghost:hover{border-color:var(--orange);color:#fff}
+
+/* HERO */
+header.hero{position:relative;padding:150px 0 90px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,5vw,3.9rem);font-weight:800;line-height:1.05}
+.hero h1 .hl{background:linear-gradient(120deg,var(--orange-soft),var(--orange) 55%,#ffb062);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p.lead{color:var(--muted);font-size:1.12rem;margin:20px 0 30px;max-width:33ch}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:30px;margin-top:40px;flex-wrap:wrap}
+.hero-stats .st b{font-family:'Sora';font-size:1.7rem;color:#fff;display:block;line-height:1}
+.hero-stats .st span{font-size:.8rem;color:var(--dim);letter-spacing:.04em}
+.hero-badge{display:inline-flex;align-items:center;gap:9px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.28);color:#bfe6fb;padding:7px 14px;border-radius:999px;font-size:.78rem;font-weight:600;margin-bottom:22px}
+.hero-badge i{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(56,189,248,.25)}
+
+/* hero visual */
+.hero-visual{position:relative}
+.hero-photo{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line-strong);box-shadow:var(--shadow);aspect-ratio:4/3;background:#0c1830}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92}
+.hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,20,36,.72));pointer-events:none}
+.hero-chip{position:absolute;display:flex;align-items:center;gap:11px;background:rgba(17,31,54,.86);backdrop-filter:blur(10px);border:1px solid var(--line-strong);border-radius:14px;padding:12px 15px;box-shadow:var(--shadow)}
+.hero-chip svg{width:22px;height:22px;color:var(--orange)}
+.hero-chip b{font-family:'Sora';font-size:.9rem}
+.hero-chip span{display:block;font-size:.72rem;color:var(--dim)}
+.chip-a{bottom:18px;left:-22px;animation:float 6s ease-in-out infinite}
+.chip-b{top:22px;right:-18px;animation:float 6s ease-in-out infinite 1.4s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* brands — grid con realce (sin movimiento) */
+.brands{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(12,22,38,.5);padding:42px 0}
+.brand-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.chip{display:inline-flex;align-items:center;font-family:'Sora';font-weight:700;font-size:1.02rem;letter-spacing:.02em;
+  color:var(--muted);padding:12px 26px;border-radius:14px;border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(27,47,78,.5),rgba(16,31,54,.5));
+  transition:transform .4s cubic-bezier(.3,1.2,.5,1),color .3s,border-color .3s,box-shadow .3s,opacity .5s;
+  opacity:0;transform:translateY(16px)}
+.brands.in .chip{opacity:1;transform:none}
+.brands.in .chip:nth-child(2){transition-delay:.05s}
+.brands.in .chip:nth-child(3){transition-delay:.1s}
+.brands.in .chip:nth-child(4){transition-delay:.15s}
+.brands.in .chip:nth-child(5){transition-delay:.2s}
+.brands.in .chip:nth-child(6){transition-delay:.25s}
+.brands.in .chip:nth-child(7){transition-delay:.3s}
+.brands.in .chip:nth-child(8){transition-delay:.35s}
+.brands.in .chip:nth-child(9){transition-delay:.4s}
+.brands.in .chip:nth-child(10){transition-delay:.45s}
+.chip:hover{color:#fff;border-color:var(--orange);transform:translateY(-7px) scale(1.04);
+  box-shadow:0 16px 32px var(--glow);background:linear-gradient(180deg,rgba(249,115,22,.18),rgba(16,31,54,.5))}
+
+/* SECTION shells */
+section{padding:96px 0}
+.sec-head{max-width:620px;margin-bottom:52px}
+.sec-head h2{font-size:clamp(2rem,4vw,2.9rem);font-weight:800;margin:14px 0 12px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+
+/* services */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.svc{position:relative;background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.4s cubic-bezier(.3,1.2,.5,1)}
+.svc:hover{transform:translateY(-8px);border-color:var(--line-strong);box-shadow:var(--shadow)}
+.svc-img{height:168px;overflow:hidden;position:relative}
+.svc-img img{width:100%;height:100%;object-fit:cover;transition:.6s;opacity:.9}
+.svc:hover .svc-img img{transform:scale(1.08);opacity:1}
+.svc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(19,31,52,.9))}
+.svc-ic{position:absolute;bottom:-20px;left:20px;z-index:2;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--orange),var(--orange-soft));color:#2a1402;box-shadow:0 10px 24px var(--glow)}
+.svc-ic svg{width:24px;height:24px}
+.svc-body{padding:30px 24px 26px}
+.svc-body h3{font-size:1.2rem;margin-bottom:9px}
+.svc-body p{color:var(--muted);font-size:.93rem}
+.svc-body .tag{display:inline-block;margin-top:14px;font-size:.78rem;font-weight:700;color:var(--orange-soft)}
+
+/* work gallery */
+.work{background:rgba(12,22,38,.55);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.work-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:190px;gap:16px}
+.work-cell{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#0c1830}
+.work-cell img{width:100%;height:100%;object-fit:cover;transition:.6s;opacity:.85}
+.work-cell:hover img{transform:scale(1.07);opacity:1}
+.work-cell .cap{position:absolute;left:0;right:0;bottom:0;padding:16px 14px 13px;background:linear-gradient(transparent,rgba(9,17,30,.9));font-weight:600;font-size:.86rem}
+.work-cell.big{grid-column:span 2;grid-row:span 2}
+.work-cell.tall{grid-row:span 2}
+
+/* why / stats band */
+.band{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.band .cell{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);padding:28px 24px}
+.band .cell b{font-family:'Sora';font-size:2.1rem;color:#fff;display:block}
+.band .cell .k{color:var(--orange-soft);font-weight:700;font-size:.82rem;letter-spacing:.04em;margin-bottom:6px;text-transform:uppercase}
+.band .cell p{color:var(--muted);font-size:.9rem;margin-top:6px}
+
+/* CTA intranet */
+.gate{position:relative;overflow:hidden;border:1px solid var(--line-strong);border-radius:26px;background:linear-gradient(120deg,#17284a,#101f36);padding:52px clamp(26px,5vw,60px);box-shadow:var(--shadow)}
+.gate::before{content:"";position:absolute;width:420px;height:420px;right:-120px;top:-160px;background:radial-gradient(circle,var(--glow),transparent 70%)}
+.gate-row{position:relative;display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap}
+.gate h2{font-size:clamp(1.7rem,3.4vw,2.4rem)}
+.gate p{color:var(--muted);max-width:46ch;margin-top:10px}
+
+/* contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:34px}
+.info-tile{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:14px;padding:18px 20px;margin-bottom:14px;transition:.3s}
+.info-tile:hover{transform:translateX(5px);border-color:var(--line-strong)}
+.info-tile svg{width:22px;height:22px;color:var(--orange-soft);flex:0 0 auto;margin-top:2px}
+.info-tile h4{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px}
+.info-tile p{font-weight:600}
+.map{border-radius:20px;overflow:hidden;border:1px solid var(--line-strong);min-height:430px;box-shadow:var(--shadow)}
+.map iframe{width:100%;height:100%;min-height:430px;border:0;filter:grayscale(.3) contrast(1.05)}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:46px 0 34px;background:rgba(10,18,30,.6)}
+.foot-row{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:.88rem}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:.7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .work-grid{grid-template-columns:repeat(2,1fr)}
+  .band{grid-template-columns:1fr 1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .nav-links .lnk{display:none}
+}
+@media(max-width:560px){
+  .svc-grid,.work-grid,.band{grid-template-columns:1fr}
+  .work-cell.big{grid-column:span 1}
+  .hero-chip{display:none}
+}
+
+/* Respaldo sin internet: si una foto externa no carga, el recuadro muestra una
+   ilustración propia en lugar de quedar vacío. */
+.sin-foto{background:
+  radial-gradient(circle at 22% 28%,rgba(56,189,248,.22),transparent 42%),
+  radial-gradient(circle at 78% 72%,rgba(249,115,22,.24),transparent 46%),
+  linear-gradient(135deg,#16294a,#0c1830)}
+.sin-foto::before{content:"";position:absolute;inset:0;opacity:.5;background-image:
+  linear-gradient(rgba(148,178,214,.10) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(148,178,214,.10) 1px,transparent 1px);background-size:28px 28px}
+.sin-foto img{display:none}
+.hero-grid>*{min-width:0}
+.info-tile>div{min-width:0}
+.info-tile p{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand" aria-label="Soluciones Informática TI">
+      <img src="/soluciones/logo-dark.png" alt="Soluciones Informática TI" class="logo-img">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="lnk">Inicio</a>
+      <a href="#servicios" class="lnk">Servicios</a>
+      <a href="catalogo.html" class="lnk">Catálogo</a>
+      <a href="#contacto" class="lnk">Contacto</a>
+      <a href="intranet.html" class="btn btn-primary">Intranet</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv in">
+      <h1>Infraestructura, redes y <span class="hl">soporte que sostiene</span> tu operación</h1>
+      <p class="lead">Equipos, cableado estructurado, videovigilancia y mantenimiento para empresas e instituciones del Estado peruano.</p>
+      <div class="hero-cta">
+        <a href="catalogo.html" class="btn btn-primary">Ver catálogo <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="#servicios" class="btn btn-ghost">Nuestros servicios</a>
+      </div>
+      <div class="hero-stats">
+        <div class="st"><b>500+</b><span>Proyectos entregados</span></div>
+        <div class="st"><b>15+</b><span>Años de experiencia</span></div>
+        <div class="st"><b>24/7</b><span>Soporte en campo</span></div>
+      </div>
+    </div>
+    <div class="hero-visual rv in">
+      <div class="hero-photo">
+        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" alt="Centro de datos y racks de red">
+      </div>
+      <div class="hero-chip chip-a">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div><b>Redes & switches</b><span>Cableado certificado</span></div>
+      </div>
+      <div class="hero-chip chip-b">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2"/></svg>
+        <div><b>Videovigilancia</b><span>Instalación y config</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="brands rv">
+  <div class="wrap">
+    <div class="brand-grid">
+      <span class="chip">HP</span>
+      <span class="chip">Lenovo</span>
+      <span class="chip">Dell</span>
+      <span class="chip">ASUS</span>
+      <span class="chip">Intel</span>
+      <span class="chip">Kingston</span>
+      <span class="chip">Ubiquiti</span>
+      <span class="chip">TP-Link</span>
+      <span class="chip">Corsair</span>
+      <span class="chip">Samsung</span>
+    </div>
+  </div>
+</div>
+
+<section id="servicios">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Qué hacemos</span>
+      <h2>Servicios de principio a fin</h2>
+      <p>Cada línea se atiende completa: diagnóstico, propuesta, instalación y soporte posterior.</p>
+    </div>
+    <div class="svc-grid">
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80" alt="Reparación de equipos">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M14 6l4 4M3 21l4-1 11-11-3-3L4 17l-1 4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <div class="svc-body"><h3>Reparación y mantenimiento</h3><p>Diagnóstico y reparación de computadoras, impresoras y servidores, con repuestos originales.</p><span class="tag">Soporte en sitio →</span></div>
+      </article>
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80" alt="Instalación de switches y racks">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="5" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="11" width="18" height="5" rx="1.5" stroke="currentColor" stroke-width="2"/><path d="M7 6.5h.01M7 13.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div></div>
+        <div class="svc-body"><h3>Redes y switches</h3><p>Cableado estructurado, configuración de switches administrables y segmentación de red.</p><span class="tag">Certificado →</span></div>
+      </article>
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80" alt="Cámaras de videovigilancia">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2"/></svg></div></div>
+        <div class="svc-body"><h3>Videovigilancia</h3><p>Instalación de cámaras IP, grabadores y monitoreo remoto para oficinas y locales.</p><span class="tag">IP & monitoreo →</span></div>
+      </article>
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" alt="Configuración de equipos">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-2.7 1.1V21a2 2 0 01-4 0v-.1A1.6 1.6 0 005 19.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00-1.1-2.7H1a2 2 0 010-4h.1A1.6 1.6 0 002.7 5l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H7a1.6 1.6 0 001-1.5V1a2 2 0 014 0v.1A1.6 1.6 0 0017 2.7l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V7a1.6 1.6 0 001.5 1H21a2 2 0 010 4h-.1a1.6 1.6 0 00-1.5 1z" stroke="currentColor" stroke-width="1.6"/></svg></div></div>
+        <div class="svc-body"><h3>Configuración y despliegue</h3><p>Instalación de sistemas operativos, software corporativo y puesta a punto de equipos nuevos.</p><span class="tag">Llave en mano →</span></div>
+      </article>
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=800&q=80" alt="Venta de equipos de cómputo">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+        <div class="svc-body"><h3>Venta de equipos</h3><p>Laptops, PCs, servidores, componentes y periféricos de marcas originales, con garantía.</p><span class="tag">Ver catálogo →</span></div>
+      </article>
+      <article class="svc rv">
+        <div class="svc-img"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80" alt="Infraestructura TI">
+          <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></div></div>
+        <div class="svc-body"><h3>Proyectos para el Estado</h3><p>Atención a entidades públicas por Acuerdos Marco y contrataciones, con documentación completa.</p><span class="tag">Perú Compras →</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="work">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Nuestro trabajo</span>
+      <h2>Lo que hacemos en campo</h2>
+      <p>Instalaciones, redes y soporte reales. Reemplaza estas fotos por las de tus propios trabajos.</p>
+    </div>
+    <div class="work-grid">
+      <div class="work-cell big rv"><img src="https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=1000&q=80" alt="Instalación de red"><span class="cap">Cableado y organización de rack</span></div>
+      <div class="work-cell tall rv"><img src="https://images.unsplash.com/photo-1601737487795-dab272f52420?auto=format&fit=crop&w=600&q=80" alt="Switch de red"><span class="cap">Configuración de switch</span></div>
+      <div class="work-cell rv"><img src="https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80" alt="Reparación"><span class="cap">Reparación en taller</span></div>
+      <div class="work-cell rv"><img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80" alt="Cámara de seguridad"><span class="cap">Cámara IP instalada</span></div>
+      <div class="work-cell rv"><img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=600&q=80" alt="Soporte técnico"><span class="cap">Puesta a punto de equipos</span></div>
+      <div class="work-cell rv"><img src="https://images.unsplash.com/photo-1484557052118-f32bd25b45b5?auto=format&fit=crop&w=600&q=80" alt="Servidores"><span class="cap">Mantenimiento de servidores</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="band">
+      <div class="cell rv"><span class="k">Respuesta</span><b>24/7</b><p>Atención en sitio para clientes con contrato de soporte.</p></div>
+      <div class="cell rv"><span class="k">Garantía</span><b>100%</b><p>Equipos originales con garantía de fábrica y respaldo local.</p></div>
+      <div class="cell rv"><span class="k">Cobertura</span><b>Lima</b><p>Y provincias para proyectos de instalación y despliegue.</p></div>
+      <div class="cell rv"><span class="k">Experiencia</span><b>15+</b><p>Años atendiendo empresas e instituciones del Estado.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="gate rv">
+      <div class="gate-row">
+        <div>
+          <span class="eyebrow">Acceso interno</span>
+          <h2>Intranet de operaciones</h2>
+          <p>El personal de Soluciones ingresa aquí para gestionar catálogo, cotizaciones, clientes y facturas.</p>
+        </div>
+        <a href="intranet.html" class="btn btn-primary" style="padding:.9rem 1.8rem;font-size:1.02rem">Ingresar a la Intranet
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Contacto</span>
+      <h2>Conversemos sobre tu proyecto</h2>
+      <p>Estamos en Lima para atender cotizaciones, soporte e instalaciones.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="rv">
+        <div class="info-tile"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7l9 6 9-6M3 7v10a1 1 0 001 1h16a1 1 0 001-1V7M3 7a1 1 0 011-1h16a1 1 0 011 1" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><div><h4>Correo</h4><p>aramirez@solucionesinformatica.com.pe</p></div></div>
+        <div class="info-tile"><svg viewBox="0 0 24 24" fill="none"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.6A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><div><h4>Ventas</h4><p>946 416 772</p></div></div>
+        <div class="info-tile"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.5 7-11a7 7 0 10-14 0c0 5.5 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><div><h4>Dirección</h4><p>Av. Lima 3959, Urb. Perú — SMP</p></div></div>
+        <div class="info-tile"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 9h18" stroke="currentColor" stroke-width="2"/></svg><div><h4>RUC</h4><p>20604792216 · Soluciones Informática TI E.I.R.L.</p></div></div>
+      </div>
+      <div class="map rv">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3902.497885698456!2d-77.09677842501766!3d-12.009398988177847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105ce5909287a93%3A0x6a0f44358a946654!2sAv.%20Lima%203959%2C%20San%20Mart%C3%ADn%20de%20Porres%2015107!5e0!3m2!1ses!2spe!4v1737755928455!5m2!1ses!2spe" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="brand"><img src="/soluciones/logo-dark.png" alt="Soluciones Informática TI" style="height:40px;width:auto"></div>
+    <p>© 2026 Soluciones Informática TI E.I.R.L. · Todos los derechos reservados</p>
+  </div>
+</footer>
+
+<script src="/soluciones/js/sitio.js" defer></script>
+</body>
+</html>

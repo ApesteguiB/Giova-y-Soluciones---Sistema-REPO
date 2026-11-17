@@ -1,0 +1,378 @@
+<main class="platform-page">
+  <header class="platform-header">
+    <div>
+      <p class="eyebrow">GIOVA · ADMINISTRACIÓN DE PLATAFORMA</p>
+      <h1>Empresas y accesos</h1>
+      <p class="intro">Gestione los datos, la marca y las cuentas ADMIN de cada empresa.</p>
+    </div>
+    <div class="header-actions">
+      <span class="identity">{{ currentUserName() }}</span>
+      <button type="button" class="button button-quiet" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="message message-error" role="alert">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="message message-success" role="status">{{ notice() }}</div>
+  }
+  @if (temporaryPassword(); as password) {
+    <section class="password-panel" aria-labelledby="temporary-password-title">
+      <div>
+        <h2 id="temporary-password-title">Contraseña temporal</h2>
+        <p>
+          Compártala ahora con la persona. No se volverá a mostrar y deberá cambiarla al ingresar.
+        </p>
+        <code>{{ password }}</code>
+      </div>
+      <button type="button" class="button button-dark" (click)="clearTemporaryPassword()">
+        Ocultar y borrar
+      </button>
+    </section>
+  }
+
+  <div class="platform-grid">
+    <aside class="tenant-list-card" aria-labelledby="tenant-list-title">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">DIRECTORIO</p>
+          <h2 id="tenant-list-title">Empresas</h2>
+        </div>
+        <button type="button" class="button button-primary" (click)="newTenant()">Nueva</button>
+      </div>
+      @if (loading()) {
+        <p class="muted">Cargando empresas…</p>
+      } @else if (tenants().length === 0) {
+        <p class="muted">Aún no hay empresas registradas.</p>
+      } @else {
+        <div class="tenant-list">
+          @for (tenant of tenants(); track tenant.id) {
+            <button
+              type="button"
+              class="tenant-item"
+              [class.selected]="selectedTenantId() === tenant.id"
+              [attr.aria-pressed]="selectedTenantId() === tenant.id"
+              (click)="selectTenant(tenant)"
+            >
+              <span class="tenant-dot" [class.inactive]="!tenant.active" aria-hidden="true"></span>
+              <span class="tenant-copy">
+                <strong>{{ tenant.displayName }}</strong>
+                <small>{{ tenant.code }} · {{ tenant.adminCount }} ADMIN</small>
+              </span>
+              <span class="state-pill" [class.inactive]="!tenant.active">
+                {{ tenant.active ? 'Activa' : 'Inactiva' }}
+              </span>
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    <div class="platform-main">
+      @let selected = selectedTenant();
+      @if (creatingTenant() || selected) {
+        <section class="card tenant-editor" aria-labelledby="tenant-editor-title">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">{{ creatingTenant() ? 'ALTA' : selected?.code }}</p>
+              <h2 id="tenant-editor-title">
+                {{ creatingTenant() ? 'Nueva empresa' : selected?.displayName }}
+              </h2>
+            </div>
+            @if (selected; as tenant) {
+              <button
+                type="button"
+                class="button"
+                [class.button-danger]="tenant.active"
+                [class.button-primary]="!tenant.active"
+                (click)="toggleTenant()"
+              >
+                {{ tenant.active ? 'Desactivar empresa' : 'Activar empresa' }}
+              </button>
+            }
+          </div>
+
+          <form [formGroup]="tenantForm" (ngSubmit)="saveTenant()" novalidate>
+            <div class="form-grid">
+              <label>
+                Código de empresa
+                <input
+                  formControlName="code"
+                  autocomplete="off"
+                  maxlength="30"
+                  [attr.aria-invalid]="tenantFieldError('code') ? true : null"
+                  aria-describedby="tenant-code-help tenant-code-error"
+                />
+                <small id="tenant-code-help"
+                  >Único; use de 3 a 30 letras, números, guion o guion bajo.</small
+                >
+                <small id="tenant-code-error" class="field-error">{{
+                  tenantFieldError('code')
+                }}</small>
+              </label>
+              <label>
+                Slug
+                <input
+                  formControlName="slug"
+                  autocomplete="off"
+                  maxlength="40"
+                  [attr.aria-invalid]="tenantFieldError('slug') ? true : null"
+                  aria-describedby="tenant-slug-error"
+                />
+                <small id="tenant-slug-error" class="field-error">{{
+                  tenantFieldError('slug')
+                }}</small>
+              </label>
+              <label class="span-2">
+                Razón social
+                <input
+                  formControlName="legalName"
+                  maxlength="200"
+                  [attr.aria-invalid]="tenantFieldError('legalName') ? true : null"
+                  aria-describedby="tenant-legalName-error"
+                />
+                <small id="tenant-legalName-error" class="field-error">{{
+                  tenantFieldError('legalName')
+                }}</small>
+              </label>
+              <label>
+                Nombre visible
+                <input
+                  formControlName="displayName"
+                  maxlength="120"
+                  [attr.aria-invalid]="tenantFieldError('displayName') ? true : null"
+                  aria-describedby="tenant-displayName-error"
+                />
+                <small id="tenant-displayName-error" class="field-error">{{
+                  tenantFieldError('displayName')
+                }}</small>
+              </label>
+              <label>
+                RUC u otro identificador fiscal
+                <input formControlName="taxId" maxlength="20" />
+                <small class="field-error">{{ tenantFieldError('taxId') }}</small>
+              </label>
+              <label class="span-2">
+                Dirección
+                <input formControlName="address" maxlength="255" />
+                <small class="field-error">{{ tenantFieldError('address') }}</small>
+              </label>
+              <label>
+                Correo de contacto
+                <input
+                  type="email"
+                  formControlName="contactEmail"
+                  maxlength="254"
+                  [attr.aria-invalid]="tenantFieldError('contactEmail') ? true : null"
+                  aria-describedby="tenant-contactEmail-error"
+                />
+                <small id="tenant-contactEmail-error" class="field-error">{{
+                  tenantFieldError('contactEmail')
+                }}</small>
+              </label>
+              <label>
+                Moneda predeterminada
+                <select formControlName="defaultCurrency">
+                  <option value="PEN">PEN · Sol peruano</option>
+                  <option value="USD">USD · Dólar estadounidense</option>
+                </select>
+                <small class="field-error">{{ tenantFieldError('defaultCurrency') }}</small>
+              </label>
+              <label>
+                IGV (tasa entre 0 y 1)
+                <input
+                  type="number"
+                  formControlName="taxRate"
+                  min="0"
+                  max="1"
+                  step="0.000001"
+                  [attr.aria-invalid]="tenantFieldError('taxRate') ? true : null"
+                  aria-describedby="tenant-taxRate-error"
+                />
+                <small id="tenant-taxRate-error" class="field-error">{{
+                  tenantFieldError('taxRate')
+                }}</small>
+              </label>
+              <label>
+                Texto en documentos
+                <input formControlName="pdfHeaderText" maxlength="120" />
+                <small class="field-error">{{ tenantFieldError('pdfHeaderText') }}</small>
+              </label>
+              <label>
+                Color principal
+                <span class="color-input"
+                  ><input
+                    type="color"
+                    [value]="tenantForm.controls.primaryColor.value"
+                    (input)="setColor('primaryColor', $event)" /><input
+                    formControlName="primaryColor"
+                    maxlength="7"
+                /></span>
+                <small class="field-error">{{ tenantFieldError('primaryColor') }}</small>
+              </label>
+              <label>
+                Color secundario
+                <span class="color-input"
+                  ><input
+                    type="color"
+                    [value]="tenantForm.controls.secondaryColor.value"
+                    (input)="setColor('secondaryColor', $event)" /><input
+                    formControlName="secondaryColor"
+                    maxlength="7"
+                /></span>
+                <small class="field-error">{{ tenantFieldError('secondaryColor') }}</small>
+              </label>
+              <label>
+                Color de acento
+                <span class="color-input"
+                  ><input
+                    type="color"
+                    [value]="tenantForm.controls.accentColor.value"
+                    (input)="setColor('accentColor', $event)" /><input
+                    formControlName="accentColor"
+                    maxlength="7"
+                /></span>
+                <small class="field-error">{{ tenantFieldError('accentColor') }}</small>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="button button-primary" [disabled]="saving()">
+                {{
+                  saving() ? 'Guardando…' : creatingTenant() ? 'Crear empresa' : 'Guardar cambios'
+                }}
+              </button>
+            </div>
+          </form>
+
+          @if (selected; as tenant) {
+            <div class="logo-section">
+              <div>
+                <h3>Logo de la empresa</h3>
+                <p class="muted">
+                  PNG o JPEG de hasta 5 MiB. Se elimina metadata y se guarda en almacenamiento
+                  privado.
+                </p>
+                <label class="file-picker">
+                  <span>Seleccionar logo</span>
+                  <input type="file" accept="image/png,image/jpeg" (change)="uploadLogo($event)" />
+                </label>
+                @if (tenant.slug === 'soluciones-informaticas-ti' && !tenant.hasLogo) {
+                  <button
+                    type="button"
+                    class="button button-outline reference-logo-button"
+                    (click)="useReferenceLogo()"
+                  >
+                    Usar el logo vectorial mejorado
+                  </button>
+                }
+              </div>
+              <div class="logo-preview">
+                @if (tenant.hasLogo) {
+                  <img [src]="logoUrl()" [alt]="'Logo de ' + tenant.displayName" />
+                } @else if (tenant.slug === 'soluciones-informaticas-ti') {
+                  <img
+                    src="/assets/soluciones-informaticas-ti.svg"
+                    [alt]="'Logo propuesto de ' + tenant.displayName"
+                  />
+                } @else {
+                  <span class="empty-logo" aria-label="Sin logo">{{
+                    tenant.displayName.slice(0, 2).toUpperCase()
+                  }}</span>
+                }
+              </div>
+            </div>
+          }
+        </section>
+
+        @if (selected; as tenant) {
+          <section class="card admins-card" aria-labelledby="admins-title">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">ACCESOS</p>
+                <h2 id="admins-title">Administradores de {{ tenant.displayName }}</h2>
+              </div>
+            </div>
+            <p class="muted">
+              Puede crear una identidad nueva o vincular una identidad existente. Solo se asigna el
+              rol ADMIN.
+            </p>
+            <form
+              class="admin-form"
+              [formGroup]="adminForm"
+              (ngSubmit)="createOrLinkAdmin()"
+              novalidate
+            >
+              <label>
+                Usuario o correo
+                <input formControlName="username" autocomplete="off" maxlength="254" />
+                @if (adminForm.controls.username.touched && adminForm.controls.username.invalid) {
+                  <small class="field-error"
+                    >Ingrese un usuario de al menos 3 caracteres o un correo válido.</small
+                  >
+                }
+              </label>
+              <label>
+                Nombre visible
+                <input formControlName="displayName" maxlength="100" />
+                @if (
+                  adminForm.controls.displayName.touched && adminForm.controls.displayName.invalid
+                ) {
+                  <small class="field-error"
+                    >Use entre 2 y 100 caracteres para el nombre visible.</small
+                  >
+                }
+              </label>
+              <button type="submit" class="button button-primary">Crear o vincular ADMIN</button>
+            </form>
+
+            @if (admins().length === 0) {
+              <p class="muted">Esta empresa aún no tiene cuentas ADMIN.</p>
+            } @else {
+              <div class="admin-list">
+                @for (admin of admins(); track admin.workerId) {
+                  <article class="admin-row">
+                    <div>
+                      <strong>{{ admin.displayName }}</strong>
+                      <small>{{ admin.username }}</small>
+                    </div>
+                    <span class="state-pill" [class.inactive]="!admin.enabled">{{
+                      admin.enabled ? 'Activa' : 'Inactiva'
+                    }}</span>
+                    <div class="admin-actions">
+                      <button
+                        type="button"
+                        class="button button-quiet"
+                        (click)="toggleAdmin(admin)"
+                      >
+                        {{ admin.enabled ? 'Desactivar' : 'Activar' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="button button-outline"
+                        (click)="resetAdminPassword(admin)"
+                      >
+                        Restablecer contraseña
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        }
+      } @else {
+        <section class="empty-state">
+          <span class="empty-mark" aria-hidden="true">+</span>
+          <h2>Seleccione una empresa</h2>
+          <p>
+            Abra una empresa del directorio o cree una nueva para configurar su marca y sus accesos.
+          </p>
+          <button type="button" class="button button-primary" (click)="newTenant()">
+            Nueva empresa
+          </button>
+        </section>
+      }
+    </div>
+  </div>
+</main>

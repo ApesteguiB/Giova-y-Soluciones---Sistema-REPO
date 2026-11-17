@@ -1,0 +1,88 @@
+<div class="resource-head">
+  <div>
+    <span class="eyebrow">Catálogo</span>
+    <h1>Marcas</h1>
+    <p>Marcas que aparecen en el catálogo público.</p>
+  </div>
+  <button class="btn btn-primary" type="button" (click)="open()">Nueva marca</button>
+</div>
+<div class="resource-toolbar">
+  <input
+    [(ngModel)]="query"
+    placeholder="Buscar por nombre o slug"
+    (keyup.enter)="search()"
+  /><button class="btn btn-blue" type="button" (click)="search()">Buscar</button>
+</div>
+@if (error()) {
+  <div class="resource-alert error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status">{{ notice() }}</div>
+}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Marca</th>
+        <th>Slug</th>
+        <th>Destacada</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items(); track item.id) {
+        <tr>
+          <td>
+            <strong>{{ item.name }}</strong>
+          </td>
+          <td>{{ item.slug }}</td>
+          <td>{{ item.featured ? 'Sí' : 'No' }}</td>
+          <td>
+            <span class="status" [class.off]="!item.active">{{
+              item.active ? 'Activa' : 'Inactiva'
+            }}</span>
+          </td>
+          <td class="row-actions">
+            <button type="button" (click)="open(item)">Editar</button
+            ><button type="button" (click)="toggle(item)">
+              {{ item.active ? 'Desactivar' : 'Activar' }}
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="empty">No hay marcas para mostrar.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+@if (formOpen()) {
+  <div class="modal-backdrop" role="presentation">
+    <div class="resource-modal" role="dialog" aria-modal="true" aria-labelledby="brand-form-title">
+      <div class="modal-head">
+        <h2 id="brand-form-title">{{ editing() ? 'Editar marca' : 'Nueva marca' }}</h2>
+        <button type="button" (click)="close()" aria-label="Cerrar">×</button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="resource-grid">
+          <label>Nombre *<input formControlName="name" /></label
+          ><label>Slug *<input formControlName="slug" /></label
+          ><label>URL de logo<input formControlName="logoUrl" /></label
+          ><label>Color<input formControlName="displayColor" placeholder="#14A3A8" /></label
+          ><label>Orden<input type="number" formControlName="displayOrder" /></label
+          ><label class="check"
+            ><input type="checkbox" formControlName="featured" /> Destacada</label
+          >
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost-dark" (click)="close()">Cancelar</button
+          ><button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

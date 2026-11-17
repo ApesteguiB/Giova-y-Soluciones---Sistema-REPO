@@ -1,0 +1,200 @@
+<div class="resource-head">
+  <div>
+    <span class="eyebrow">Ventas</span>
+    <h1>Precios de referencia</h1>
+    <p>Historial de precios por producto, proveedor y fuente. Los registros son históricos.</p>
+  </div>
+  @if (canCreate()) {
+    <button class="btn btn-primary" type="button" (click)="open()">Registrar precio</button>
+  }
+</div>
+<div class="resource-toolbar">
+  <div class="pr-search">
+    <input
+      class="pr-search-input"
+      type="search"
+      autocomplete="off"
+      role="combobox"
+      aria-label="Buscar producto por nombre o código"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="showSuggestions() && suggestions().length > 0"
+      placeholder="Escribe el nombre o el código del producto…"
+      [value]="searchTerm()"
+      (input)="onSearchInput($any($event.target).value)"
+      (focus)="showSuggestions.set(true)"
+      (blur)="hideSuggestionsSoon()"
+      (keyup.escape)="showSuggestions.set(false)"
+    />
+    @if (searchTerm()) {
+      <button class="pr-clear" type="button" (click)="clearProduct()" aria-label="Limpiar búsqueda">
+        ×
+      </button>
+    }
+    @if (showSuggestions() && searchTerm().trim()) {
+      <ul class="pr-suggestions" role="listbox">
+        @for (product of suggestions(); track product.id) {
+          <li role="option" [attr.aria-selected]="selectedProduct()?.id === product.id">
+            <button type="button" (mousedown)="pickProduct(product)">
+              <span class="pr-sku">{{ product.sku }}</span>
+              <span class="pr-name">{{ product.name }}</span>
+            </button>
+          </li>
+        } @empty {
+          <li class="pr-empty">Sin coincidencias para «{{ searchTerm() }}»</li>
+        }
+      </ul>
+    }
+  </div>
+  <button class="btn btn-blue" type="button" (click)="search()">Actualizar</button>
+</div>
+@if (selectedProduct(); as product) {
+  <p class="pr-active-filter">
+    Mostrando el historial de <strong>{{ product.sku }} · {{ product.name }}</strong>
+    <button type="button" class="link-btn" (click)="clearProduct()">ver todos</button>
+  </p>
+}
+@if (error()) {
+  <div class="resource-alert error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status">{{ notice() }}</div>
+}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Fuente / proveedor</th>
+        <th>Vigencia</th>
+        <th>Registrado por</th>
+        @if (canEdit()) {
+          <th></th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items(); track item.id) {
+        <tr>
+          <td>
+            <strong>{{ item.productName }}</strong
+            ><small>{{ item.productSku }}</small>
+          </td>
+          <td>
+            <strong>{{ item.currencyCode }} {{ item.unitPrice | number: '1.2-4' }}</strong
+            ><small>{{ item.includesTax ? 'Incluye IGV' : 'Sin IGV' }}</small>
+          </td>
+          <td>
+            {{ item.supplierName || '—'
+            }}<small>{{ item.sourceReference || 'Sin referencia' }}</small>
+          </td>
+          <td>{{ displayDate(item.effectiveAt) }}</td>
+          <td>{{ item.recordedByDisplayName }}</td>
+          @if (canEdit()) {
+            <td class="row-actions"><button type="button" (click)="open(item)">Editar</button></td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="canEdit() ? 6 : 5" class="empty">
+            No hay precios de referencia para mostrar.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+@if (loading()) {
+  <p class="empty">Cargando precios…</p>
+}
+@if (formOpen()) {
+  <div class="modal-backdrop" role="presentation">
+    <div class="resource-modal" role="dialog" aria-modal="true" aria-labelledby="price-form-title">
+      <div class="modal-head">
+        <h2 id="price-form-title">{{ editing() ? 'Editar precio' : 'Registrar precio' }}</h2>
+        <button type="button" (click)="close()" aria-label="Cerrar">×</button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="resource-grid">
+          <label class="full-field"
+            >Producto *
+            <div class="pr-search">
+              <input
+                class="pr-search-input"
+                type="search"
+                autocomplete="off"
+                placeholder="Escribe para buscar por nombre o código…"
+                [value]="formSearchTerm()"
+                (input)="onFormSearchInput($any($event.target).value)"
+                (focus)="formShowSuggestions.set(true)"
+                (blur)="hideFormSuggestionsSoon()"
+                (keyup.escape)="formShowSuggestions.set(false)"
+              />
+              @if (formShowSuggestions()) {
+                <ul class="pr-suggestions" role="listbox">
+                  @for (product of formSuggestions(); track product.id) {
+                    <li role="option" [attr.aria-selected]="form.value.productId === product.id">
+                      <button type="button" (mousedown)="pickFormProduct(product)">
+                        <span class="pr-sku">{{ product.sku }}</span>
+                        <span class="pr-name">{{ product.name }}</span>
+                      </button>
+                    </li>
+                  } @empty {
+                    <li class="pr-empty">Sin coincidencias</li>
+                  }
+                </ul>
+              }
+            </div>
+            @if (form.controls.productId.value === 0) {
+              <small class="field-hint">Selecciona un producto de la lista.</small>
+            }
+          </label>
+          <label
+            >Moneda *<select formControlName="currencyCode">
+              <option value="PEN">PEN</option>
+              <option value="USD">USD</option>
+            </select></label
+          >
+          <label
+            >Precio unitario *<input
+              type="number"
+              step="0.0001"
+              min="0.0001"
+              formControlName="unitPrice"
+          /></label>
+          <label
+            >Vigente desde *<input type="datetime-local" formControlName="effectiveAt"
+          /></label>
+          <label>Proveedor<input formControlName="supplierName" /></label>
+          <label>Referencia de fuente<input formControlName="sourceReference" /></label>
+          <label
+            >Tipo de cambio a PEN<input
+              type="number"
+              step="0.000001"
+              min="0.000001"
+              formControlName="exchangeRateToPen"
+              placeholder="Solo USD"
+          /></label>
+          <label
+            >Tasa de impuesto<input
+              type="number"
+              step="0.01"
+              min="0"
+              max="1"
+              formControlName="taxRate"
+          /></label>
+          <label class="check"
+            ><input type="checkbox" formControlName="includesTax" /> Incluye impuesto</label
+          >
+          <label class="full-field">Notas<textarea formControlName="notes"></textarea></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost-dark" (click)="close()">Cancelar</button
+          ><button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

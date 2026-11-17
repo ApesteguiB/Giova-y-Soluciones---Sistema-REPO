@@ -1,0 +1,137 @@
+<div class="resource-head">
+  <div>
+    <span class="eyebrow">Ventas</span>
+    <h1>Clientes</h1>
+    <p>Consulta y administra clientes para cotizaciones y órdenes.</p>
+  </div>
+  @if (canWrite()) {
+    <button class="btn btn-primary" type="button" (click)="open()">Nuevo cliente</button>
+  }
+</div>
+<div class="resource-toolbar">
+  <input
+    [(ngModel)]="query"
+    placeholder="Buscar por documento, nombre o correo"
+    (keyup.enter)="search()"
+  />
+  <select [(ngModel)]="activeFilter" (change)="search()" aria-label="Filtrar por estado">
+    <option value="active">Activos</option>
+    <option value="inactive">Inactivos</option>
+    <option value="all">Todos</option>
+  </select>
+  <button class="btn btn-blue" type="button" (click)="search()">Buscar</button>
+</div>
+@if (error()) {
+  <div class="resource-alert error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status">{{ notice() }}</div>
+}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Documento</th>
+        <th>Contacto</th>
+        <th>Responsable</th>
+        <th>Estado</th>
+        @if (canWrite() || canDeactivate()) {
+          <th></th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items(); track item.publicId) {
+        <tr>
+          <td>
+            <strong>{{ item.businessName || item.contactName || 'Sin nombre' }}</strong>
+            @if (item.customerType === 'COMPANY' && item.contactName) {
+              <small>{{ item.contactName }}</small>
+            }
+          </td>
+          <td>{{ item.documentType }} {{ item.documentNumber }}</td>
+          <td>
+            {{ item.email || '—' }}
+            @if (item.phone) {
+              <small>{{ item.phone }}</small>
+            }
+          </td>
+          <td>{{ item.ownerDisplayName }}</td>
+          <td>
+            <span class="status" [class.off]="!item.active">{{
+              item.active ? 'Activo' : 'Inactivo'
+            }}</span>
+          </td>
+          @if (canWrite() || canDeactivate()) {
+            <td class="row-actions">
+              @if (canWrite()) {
+                <button type="button" (click)="open(item)">Editar</button>
+              }
+              @if (canDeactivate()) {
+                <button type="button" (click)="toggle(item)">
+                  {{ item.active ? 'Desactivar' : 'Activar' }}
+                </button>
+              }
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="canWrite() || canDeactivate() ? 6 : 5" class="empty">
+            No hay clientes para mostrar.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+@if (loading()) {
+  <p class="empty">Cargando clientes…</p>
+}
+@if (formOpen()) {
+  <div class="modal-backdrop" role="presentation">
+    <div
+      class="resource-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customer-form-title"
+    >
+      <div class="modal-head">
+        <h2 id="customer-form-title">{{ editing() ? 'Editar cliente' : 'Nuevo cliente' }}</h2>
+        <button type="button" (click)="close()" aria-label="Cerrar">×</button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="resource-grid">
+          <label
+            >Tipo *<select formControlName="customerType">
+              <option value="PERSON">Persona</option>
+              <option value="COMPANY">Empresa</option>
+            </select></label
+          >
+          <label
+            >Documento *<select formControlName="documentType">
+              <option value="DNI">DNI</option>
+              <option value="RUC">RUC</option>
+              <option value="CE">CE</option>
+              <option value="OTHER">Otro</option>
+            </select></label
+          >
+          <label>Número de documento *<input formControlName="documentNumber" /></label>
+          <label>Razón social<input formControlName="businessName" /></label>
+          <label>Nombre de contacto<input formControlName="contactName" /></label>
+          <label>Correo<input type="email" formControlName="email" /></label>
+          <label>Teléfono<input formControlName="phone" /></label>
+          <label>Dirección<input formControlName="address" /></label>
+          <label class="full-field">Notas<textarea formControlName="notes"></textarea></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost-dark" (click)="close()">Cancelar</button
+          ><button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

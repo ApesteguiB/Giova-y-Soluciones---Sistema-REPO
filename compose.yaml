@@ -1,0 +1,67 @@
+name: giova-v1
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      GIOVA_CATALOG_ENABLED: ${GIOVA_CATALOG_ENABLED:-true}
+      # Fijo a propósito: dentro del contenedor, la base de XAMPP que corre en
+      # Windows solo se alcanza por host.docker.internal. Una variable de
+      # entorno suelta en la terminal (por ejemplo 127.0.0.1, usada al crear
+      # trabajadores) tiene prioridad sobre el .env y deja la API en bucle.
+      GIOVA_DB_HOST: host.docker.internal
+      GIOVA_DB_PORT: ${GIOVA_DB_PORT:-3306}
+      GIOVA_DB_NAME: ${GIOVA_DB_NAME:-giova_v1}
+      GIOVA_DB_USER: ${GIOVA_DB_USER:-giova_app}
+      GIOVA_DB_PASSWORD: ${GIOVA_DB_PASSWORD:-}
+      GIOVA_FLYWAY_USER: ${GIOVA_FLYWAY_USER:-giova_migrator}
+      GIOVA_FLYWAY_PASSWORD: ${GIOVA_FLYWAY_PASSWORD:-}
+      # Docker siempre usa el volumen privado; GIOVA_DOCUMENTS_ROOT local no debe
+      # convertir una ruta del host en una ruta inexistente dentro del contenedor.
+      GIOVA_DOCUMENTS_ROOT: /var/lib/giova/documents
+      GIOVA_DOCUMENTS_MAX_BYTES: ${GIOVA_DOCUMENTS_MAX_BYTES:-10485760}
+      # Empresa del sitio público cuando el dominio de la petición no está en
+      # tenant_hosts, y permiso de ?empresa= solo desde localhost (demostración).
+      GIOVA_SITE_DEFAULT_TENANT: ${GIOVA_SITE_DEFAULT_TENANT:-GIOVA}
+      GIOVA_SITE_ALLOW_LOCAL_OVERRIDE: ${GIOVA_SITE_ALLOW_LOCAL_OVERRIDE:-true}
+      GIOVA_OECE_ENABLED: ${GIOVA_OECE_ENABLED:-false}
+      GIOVA_OECE_BASE_URL: ${GIOVA_OECE_BASE_URL:-https://contratacionesabiertas.oece.gob.pe/api/v1/releases}
+      GIOVA_OECE_SYNC_CRON: ${GIOVA_OECE_SYNC_CRON:-0 0 */6 * * *}
+      GIOVA_OECE_CONNECT_TIMEOUT_SECONDS: ${GIOVA_OECE_CONNECT_TIMEOUT_SECONDS:-10}
+      GIOVA_OECE_READ_TIMEOUT_SECONDS: ${GIOVA_OECE_READ_TIMEOUT_SECONDS:-30}
+      GIOVA_OECE_PAGE_SIZE: ${GIOVA_OECE_PAGE_SIZE:-50}
+      GIOVA_OECE_MAX_PAGES: ${GIOVA_OECE_MAX_PAGES:-60}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - giova_documents:/var/lib/giova/documents
+    networks:
+      - giova
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8088:80"
+    networks:
+      - giova
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/health | grep -q UP"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+networks:
+  giova:
+    driver: bridge
+
+volumes:
+  giova_documents:
+    name: giova-v1-documents

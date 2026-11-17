@@ -1,0 +1,974 @@
+<div class="resource-head quotation-head">
+  <div>
+    <span class="eyebrow">Ventas</span>
+    <h1>Cotizaciones</h1>
+    @if (canWrite()) {
+      <p>Crea propuestas, revisa el cálculo del servidor y emite el PDF cuando estén listas.</p>
+    } @else {
+      <p>Seguimiento de las cotizaciones registradas por los vendedores. Solo lectura.</p>
+    }
+  </div>
+  @if (canWrite()) {
+    <button class="btn btn-primary" type="button" (click)="open()">Nueva cotización</button>
+  } @else {
+    <span class="read-only-badge">Solo el vendedor cotiza · vista de consulta</span>
+  }
+</div>
+
+<div class="quotation-toolbar resource-toolbar">
+  <label class="toolbar-field">
+    <span>Buscar</span>
+    <input
+      [(ngModel)]="query"
+      aria-label="Buscar cotizaciones"
+      placeholder="Número, cliente o documento"
+      maxlength="80"
+      (keyup.enter)="search()"
+    />
+  </label>
+  <label class="toolbar-field">
+    <span>Estado</span>
+    <select
+      [(ngModel)]="statusFilter"
+      aria-label="Filtrar cotizaciones por estado"
+      (change)="search()"
+    >
+      <option value="ALL">Todos los estados</option>
+      <option value="DRAFT">Borradores</option>
+      <option value="ISSUED">Emitidas</option>
+      <option value="ACCEPTED">Aceptadas</option>
+      <option value="REJECTED">Rechazadas</option>
+      <option value="EXPIRED">Vencidas</option>
+      <option value="CANCELLED">Anuladas</option>
+    </select>
+  </label>
+  <label class="toolbar-field">
+    <span>Procedimiento</span>
+    <select
+      [(ngModel)]="procurementFilter"
+      aria-label="Filtrar por tipo de procedimiento"
+      (change)="search()"
+    >
+      <option value="ALL">Todos</option>
+      <option value="PERU_COMPRAS">Perú Compras</option>
+      <option value="DIRECTA">Directa</option>
+      <option value="INDIRECTA">Indirecta</option>
+      <option value="PRIVADA">Privada</option>
+    </select>
+  </label>
+  <label class="toolbar-field">
+    <span>Resultado</span>
+    <select [(ngModel)]="outcomeFilter" aria-label="Filtrar por resultado" (change)="search()">
+      <option value="ALL">Todos</option>
+      <option value="PENDIENTE">Esperando decisión</option>
+      <option value="SELECCIONADA">Seleccionadas</option>
+      <option value="NO_SELECCIONADA">No seleccionadas</option>
+      <option value="DESIERTA">Desiertas</option>
+      <option value="RECHAZADA">Rechazadas</option>
+      <option value="ANULADA">Anuladas por nosotros</option>
+    </select>
+  </label>
+  @if (canChooseOwner()) {
+    <label class="toolbar-field">
+      <span>Responsable</span>
+      <select [(ngModel)]="ownerFilter" aria-label="Filtrar por responsable" (change)="search()">
+        <option value="all">Todos</option>
+        <option value="me">Solo mías</option>
+      </select>
+    </label>
+  }
+  <button class="btn btn-blue toolbar-button" type="button" (click)="search()">Actualizar</button>
+</div>
+
+@if (error()) {
+  <div class="resource-alert error" role="alert" aria-live="assertive">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status" aria-live="polite">{{ notice() }}</div>
+}
+
+<section class="quotation-results" aria-labelledby="quotation-results-title">
+  <div class="quotation-context" aria-label="Resumen del listado">
+    <div>
+      <span class="eyebrow">Resultados</span>
+      <h2 id="quotation-results-title">Cotizaciones encontradas</h2>
+    </div>
+    <div class="results-summary">
+      <strong>{{ totalItems() }}</strong>
+      <span>{{ totalItems() === 1 ? 'registro' : 'registros' }} · datos de la API</span>
+    </div>
+  </div>
+
+  <div class="table-wrap quotation-table-wrap">
+    <table class="quotation-table">
+      <caption class="sr-only">
+        Tabla de cotizaciones encontradas
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Cotización</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Procedimiento</th>
+          <th scope="col">Vigencia</th>
+          <th scope="col">Total</th>
+          <th scope="col">Resultado</th>
+          <th scope="col">Responsable</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.publicId) {
+          <tr>
+            <td>
+              <button
+                type="button"
+                class="table-link"
+                (click)="openDetail(item)"
+                [attr.aria-label]="'Ver detalle de ' + displayNumber(item)"
+              >
+                {{ displayNumber(item) }}
+              </button>
+              <small>Creada {{ displayDateTime(item.createdAt) }}</small>
+            </td>
+            <td>
+              <strong>{{ item.customerName }}</strong>
+              <small>{{ item.customerDocumentType }} {{ item.customerDocumentNumber }}</small>
+            </td>
+            <td>
+              {{ procurementLabel(item.procurementType) }}
+              @if (item.ocamNumber) {
+                <small>{{ item.ocamNumber }}</small>
+              }
+            </td>
+            <td>
+              {{ displayDate(item.validUntil) }}
+              @if (item.deliveryTermDays) {
+                <small>Entrega {{ item.deliveryTermDays }} días</small>
+              }
+            </td>
+            <td>
+              <strong>{{ item.currencyCode }} {{ item.totalAmount | number: '1.2-2' }}</strong>
+              <small>Sub. {{ item.subtotalAmount | number: '1.2-2' }}</small>
+            </td>
+            <td>
+              <span [class]="outcomeClass(item.outcome)">{{ outcomeLabel(item.outcome) }}</span>
+              <small>{{ statusLabel(item.status) }}</small>
+              @if (item.outcomeReason) {
+                <small class="outcome-reason" [title]="item.outcomeReason">
+                  {{
+                    item.outcomeSource === 'NOSOTROS'
+                      ? 'Nuestra decisión'
+                      : 'Decisión de la entidad'
+                  }}
+                </small>
+              }
+            </td>
+            <td>{{ item.ownerDisplayName }}</td>
+            <td class="row-actions quotation-actions">
+              <button type="button" (click)="openDetail(item)">Ver</button>
+              @if (canWrite() && item.status === 'DRAFT') {
+                <button type="button" (click)="open(item)">Editar</button>
+                <button type="button" [disabled]="isBusy(item, 'issue')" (click)="issue(item)">
+                  {{ isBusy(item, 'issue') ? 'Emitiendo…' : 'Emitir' }}
+                </button>
+                <button
+                  type="button"
+                  [disabled]="isBusy(item, 'status')"
+                  (click)="changeStatus(item, 'CANCELLED')"
+                >
+                  Anular
+                </button>
+              }
+              @if (canCloseOutcome(item)) {
+                <button
+                  type="button"
+                  class="primary-action"
+                  [disabled]="isBusy(item, 'outcome')"
+                  (click)="openOutcome(item)"
+                >
+                  Registrar resultado
+                </button>
+              }
+              @if (canRegisterOcam(item)) {
+                <button type="button" [disabled]="isBusy(item, 'ocam')" (click)="openOcam(item)">
+                  {{ item.ocamNumber ? 'Editar OCAM' : 'Registrar OCAM' }}
+                </button>
+              }
+              @if (item.issuedPdfPublicId) {
+                <button type="button" [disabled]="isBusy(item, 'pdf')" (click)="downloadPdf(item)">
+                  {{ isBusy(item, 'pdf') ? 'Descargando…' : 'PDF' }}
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading()) {
+            <tr>
+              <td colspan="8" class="empty">No hay cotizaciones para los filtros seleccionados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+@if (loading()) {
+  <p class="empty loading-state" role="status" aria-live="polite">Cargando cotizaciones…</p>
+}
+@if (!loading() && totalPages() > 1) {
+  <nav class="pagination" aria-label="Paginación de cotizaciones">
+    <button
+      class="btn btn-ghost-dark"
+      type="button"
+      [disabled]="page() === 0"
+      (click)="previousPage()"
+    >
+      Anterior
+    </button>
+    <span>Página {{ page() + 1 }} de {{ totalPages() }}</span>
+    <button
+      class="btn btn-ghost-dark"
+      type="button"
+      [disabled]="page() + 1 >= totalPages()"
+      (click)="nextPage()"
+    >
+      Siguiente
+    </button>
+  </nav>
+}
+
+@if (formOpen()) {
+  <div class="modal-backdrop" role="presentation" (click)="closeFromBackdrop($event)">
+    <div
+      class="resource-modal quotation-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quotation-form-title"
+      aria-describedby="quotation-form-description"
+    >
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">{{ editing() ? 'Edición' : 'Nueva propuesta' }}</span>
+          <h2 id="quotation-form-title">
+            {{ editing() ? 'Editar cotización' : 'Nueva cotización' }}
+          </h2>
+          <p id="quotation-form-description" class="modal-intro">
+            Completa los datos y revisa el resumen antes de guardar la propuesta.
+          </p>
+        </div>
+        <button class="modal-close" type="button" (click)="close()" aria-label="Cerrar formulario">
+          ×
+        </button>
+      </div>
+      @if (localDraft() && !editing()) {
+        <div class="draft-note" role="status">
+          Hay un borrador local seguro disponible. Se restauran líneas y montos; el cliente y las
+          notas no se guardan en el navegador.
+        </div>
+      }
+      <form class="quotation-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <fieldset>
+          <legend>Datos de la propuesta</legend>
+          <div class="resource-grid quotation-grid">
+            <label class="full-field">
+              Cliente *
+              <select
+                formControlName="customerPublicId"
+                [attr.aria-invalid]="
+                  form.controls.customerPublicId.invalid && form.controls.customerPublicId.touched
+                "
+              >
+                <option value="">Seleccione un cliente activo…</option>
+                @for (customer of customers(); track customer.publicId) {
+                  <option [value]="customer.publicId">{{ customerLabel(customer) }}</option>
+                }
+              </select>
+              @if (
+                form.controls.customerPublicId.invalid && form.controls.customerPublicId.touched
+              ) {
+                <span class="field-error">Selecciona un cliente.</span>
+              }
+            </label>
+            <label>
+              Moneda *
+              <select formControlName="currencyCode" (change)="onCurrencyChange()">
+                <option value="PEN">PEN — Soles</option>
+                <option value="USD">USD — Dólares</option>
+              </select>
+            </label>
+            <label>
+              Tipo de cambio a PEN *
+              <input
+                type="number"
+                min="0.000001"
+                step="0.000001"
+                formControlName="exchangeRateToPen"
+                [readonly]="form.controls.currencyCode.value === 'PEN'"
+              />
+              <small>{{
+                form.controls.currencyCode.value === 'PEN'
+                  ? 'Para PEN se usa 1.'
+                  : 'Indica la tasa vigente para este documento.'
+              }}</small>
+            </label>
+            <label class="full-field">
+              Tipo de procedimiento *
+              <select formControlName="procurementType" (change)="onProcurementChange()">
+                <option value="PERU_COMPRAS">Perú Compras (Acuerdo Marco)</option>
+                <option value="DIRECTA">Contratación directa</option>
+                <option value="INDIRECTA">Contratación indirecta</option>
+                <option value="PRIVADA">Empresa privada</option>
+              </select>
+              <small>{{ procurementHints[form.controls.procurementType.value] }}</small>
+            </label>
+            <label>
+              {{ usesBusinessDays ? 'Límite para cotizar *' : 'Vigente hasta' }}
+              <input type="date" formControlName="validUntil" />
+              @if (usesBusinessDays) {
+                <small> El plazo se cuenta en días hábiles (no cuentan sábado ni domingo). </small>
+              }
+            </label>
+            @if (usesBusinessDays) {
+              <label>
+                Días hábiles
+                <div class="day-chips" role="group" aria-label="Días hábiles de plazo">
+                  @for (days of frameworkDayOptions; track days) {
+                    <button
+                      type="button"
+                      class="day-chip"
+                      [class.active]="form.controls.frameworkDays.value === days"
+                      (click)="applyFrameworkDays(days)"
+                    >
+                      {{ days }}
+                    </button>
+                  }
+                </div>
+                <small>Calcula la fecha automáticamente desde hoy.</small>
+              </label>
+            }
+            <label>
+              Plazo de entrega ofrecido
+              <input type="number" min="1" max="365" formControlName="deliveryTermDays" />
+              <small>En días calendario, desde la orden de compra.</small>
+            </label>
+            <label>
+              Garantía ofrecida
+              <input type="number" min="0" max="120" formControlName="warrantyMonths" />
+              <small>En meses.</small>
+            </label>
+            <label>
+              Tasa de impuesto
+              <input type="number" min="0" max="1" step="0.01" formControlName="taxRate" />
+              <small>Usa 0.18 para 18%.</small>
+            </label>
+            <label class="check tax-check">
+              <input type="checkbox" formControlName="includesTax" />
+              Los precios incluyen impuesto
+            </label>
+            <label class="full-field">
+              Notas internas
+              <textarea
+                formControlName="notes"
+                maxlength="1500"
+                rows="3"
+                placeholder="Condiciones o aclaraciones de la propuesta"
+              ></textarea>
+            </label>
+          </div>
+        </fieldset>
+
+        @if (frameworkDeadlineWarning) {
+          <div class="resource-alert warn" role="status">{{ frameworkDeadlineWarning }}</div>
+        }
+
+        <fieldset class="lines-fieldset">
+          <legend>
+            Líneas de la cotización
+            <button
+              type="button"
+              class="competitor-toggle"
+              [class.active]="showCompetitorPrices()"
+              (click)="toggleCompetitorPrices()"
+            >
+              {{ showCompetitorPrices() ? 'Ocultar' : 'Mostrar' }} precios de compra y competencia
+            </button>
+          </legend>
+          <p class="fieldset-help">
+            Escribe el nombre o el código del producto: la lista se filtra mientras escribes. Si no
+            existe en el catálogo, escríbelo a mano y completa SKU y descripción.
+          </p>
+          <div class="line-list" formArrayName="items">
+            @for (line of lineForms.controls; track $index; let i = $index) {
+              <div class="quotation-line" [formGroupName]="i">
+                <div class="line-topline">
+                  <strong>Línea {{ i + 1 }}</strong>
+                  <button
+                    type="button"
+                    class="remove-line"
+                    [disabled]="lineForms.length === 1"
+                    (click)="removeLine(i)"
+                  >
+                    Quitar
+                  </button>
+                </div>
+                <div class="line-grid">
+                  <label class="line-product">
+                    Producto
+                    <div class="pr-search">
+                      <input
+                        class="pr-search-input"
+                        type="search"
+                        autocomplete="off"
+                        placeholder="Escribe el producto o su código…"
+                        [value]="lineSearchValue(i)"
+                        (input)="onLineSearchInput(i, $any($event.target).value)"
+                        (focus)="openLine.set(i)"
+                        (blur)="closeLineSoon()"
+                        (keyup.escape)="openLine.set(null)"
+                      />
+                      @if (openLine() === i) {
+                        <ul class="pr-suggestions" role="listbox">
+                          @for (product of lineSuggestions(i); track product.id) {
+                            <li role="option">
+                              <button type="button" (mousedown)="pickLineProduct(i, product)">
+                                <span class="pr-sku">{{ product.sku }}</span>
+                                <span class="pr-name">{{ product.name }}</span>
+                              </button>
+                            </li>
+                          } @empty {
+                            <li class="pr-empty">
+                              Sin coincidencias. Escribe el SKU y la descripción a mano.
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                    <small class="field-hint">
+                      @if (line.getRawValue().productId > 0) {
+                        Producto del catálogo.
+                      } @else {
+                        Concepto manual: completa SKU y descripción abajo.
+                      }
+                    </small>
+                  </label>
+                  <label>
+                    SKU *
+                    <input formControlName="sku" maxlength="80" />
+                  </label>
+                  <label class="line-description">
+                    Descripción *
+                    <input formControlName="description" maxlength="500" />
+                  </label>
+                  <label>
+                    Unidad *
+                    <input formControlName="unit" maxlength="30" />
+                  </label>
+                  <label>
+                    Cantidad *
+                    <input type="number" min="0.0001" step="0.0001" formControlName="quantity" />
+                  </label>
+                  <label>
+                    Precio unitario *
+                    <input type="number" min="0" step="0.0001" formControlName="unitPrice" />
+                  </label>
+                  @if (showCompetitorPrices()) {
+                    <label>
+                      Precio de compra
+                      <input type="number" min="0" step="0.0001" formControlName="purchasePrice" />
+                      @if (lineMargin(i); as margin) {
+                        <small [class]="marginTone(margin)">
+                          Margen {{ margin | number: '1.1-1' }} %
+                        </small>
+                      } @else {
+                        <small class="field-hint">Sin costo cargado.</small>
+                      }
+                    </label>
+                    <label>
+                      Precio de competencia
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.0001"
+                        formControlName="competitorPrice"
+                      />
+                      @if (competitorGap(i); as gap) {
+                        <small [class]="gap < 0 ? 'margin-ok' : 'margin-warn'">
+                          Estamos {{ absolute(gap) | number: '1.1-1' }} %
+                          {{ gap < 0 ? 'por debajo' : 'por encima' }}
+                        </small>
+                      } @else {
+                        <small class="field-hint">Sin dato de competencia.</small>
+                      }
+                    </label>
+                  }
+                </div>
+                @if (lineSearchValue(i) && line.getRawValue().productId > 0) {
+                  <div class="price-history">
+                    <button
+                      type="button"
+                      class="history-toggle"
+                      [class.open]="historyOpenLine() === i"
+                      (click)="toggleHistory(i)"
+                    >
+                      <span>Historial de precios</span>
+                      @if (historySummary(i)) {
+                        <small>{{ historySummary(i) }}</small>
+                      }
+                      <span class="chev">{{ historyOpenLine() === i ? '▾' : '▸' }}</span>
+                    </button>
+
+                    @if (historyOpenLine() === i) {
+                      @if (historyIsLoading(i)) {
+                        <p class="history-empty" role="status">Buscando ventas anteriores…</p>
+                      } @else if (historyFor(i); as history) {
+                        <div class="history-body">
+                          @if (history.stats.suggestedPrice !== null) {
+                            <div class="history-suggestion">
+                              <div>
+                                <span class="history-label">Precio sugerido</span>
+                                <strong>{{
+                                  history.stats.suggestedPrice | number: '1.2-2'
+                                }}</strong>
+                                <small>{{ history.stats.suggestionBasis }}</small>
+                              </div>
+                              <button
+                                type="button"
+                                class="use-price"
+                                (click)="useHistoryPrice(i, history.stats.suggestedPrice)"
+                              >
+                                Usar
+                              </button>
+                            </div>
+                          } @else {
+                            <p class="history-note">{{ history.stats.suggestionBasis }}</p>
+                          }
+
+                          @if (history.stats.timesQuoted > 0) {
+                            <p class="history-note">
+                              Cotizado {{ history.stats.timesQuoted }}
+                              {{ history.stats.timesQuoted === 1 ? 'vez' : 'veces' }} · ganadas
+                              {{ history.stats.timesWon }}
+                              @if (history.stats.winRate !== null) {
+                                ({{ history.stats.winRate | number: '1.0-1' }} %)
+                              }
+                            </p>
+                          }
+
+                          @if (history.lastPurchase; as purchase) {
+                            <div class="history-block">
+                              <span class="history-label">Última compra</span>
+                              <p>
+                                {{ purchase.currencyCode }}
+                                {{ purchase.unitPrice | number: '1.2-4' }}
+                                <small>
+                                  {{ purchase.includesTax ? 'con IGV' : 'sin IGV' }} ·
+                                  {{ purchase.supplierName || 'proveedor no indicado' }} ·
+                                  {{ displayShortDate(purchase.date) }}
+                                </small>
+                              </p>
+                            </div>
+                          }
+
+                          @if (history.wonSales.length > 0) {
+                            <div class="history-block">
+                              <span class="history-label">Se vendió a</span>
+                              <ul class="history-list">
+                                @for (sale of history.wonSales; track sale.quotationPublicId) {
+                                  <li>
+                                    <button
+                                      type="button"
+                                      class="history-price win"
+                                      (click)="useHistoryPrice(i, sale.unitPrice)"
+                                      title="Usar este precio"
+                                    >
+                                      {{ sale.currencyCode }} {{ sale.unitPrice | number: '1.2-2' }}
+                                    </button>
+                                    <span class="history-who">
+                                      {{ sale.customerName }}
+                                      <small>
+                                        {{ displayShortDate(sale.date) }} ·
+                                        {{ sale.quantity | number: '1.0-2' }} und
+                                        @if (sale.invoiced) {
+                                          · facturada
+                                        }
+                                      </small>
+                                    </span>
+                                  </li>
+                                }
+                              </ul>
+                            </div>
+                          }
+
+                          @if (history.lostSales.length > 0) {
+                            <div class="history-block">
+                              <span class="history-label">Nos ganaron con</span>
+                              <ul class="history-list">
+                                @for (sale of history.lostSales; track sale.quotationPublicId) {
+                                  <li>
+                                    <button
+                                      type="button"
+                                      class="history-price lose"
+                                      (click)="useHistoryPrice(i, sale.competitorPrice)"
+                                      title="Usar este precio"
+                                    >
+                                      {{ sale.currencyCode }}
+                                      {{ sale.competitorPrice | number: '1.2-2' }}
+                                    </button>
+                                    <span class="history-who">
+                                      {{ sale.customerName }}
+                                      <small>
+                                        {{ displayShortDate(sale.date) }} · nosotros
+                                        {{ sale.ourPrice | number: '1.2-2' }}
+                                      </small>
+                                    </span>
+                                  </li>
+                                }
+                              </ul>
+                            </div>
+                          }
+
+                          @if (
+                            history.wonSales.length === 0 &&
+                            history.lostSales.length === 0 &&
+                            !history.lastPurchase
+                          ) {
+                            <p class="history-empty">
+                              Este producto todavía no se ha cotizado ni comprado.
+                            </p>
+                          }
+                        </div>
+                      } @else {
+                        <p class="history-empty">Sin historial para este producto.</p>
+                      }
+                    }
+                  </div>
+                }
+
+                <div class="line-total" aria-live="polite">
+                  <span
+                    >Subtotal {{ form.controls.currencyCode.value }}
+                    {{ linePreview(i).subtotal | number: '1.2-2' }}</span
+                  >
+                  <span
+                    >Impuesto {{ form.controls.currencyCode.value }}
+                    {{ linePreview(i).tax | number: '1.2-2' }}</span
+                  >
+                  <strong
+                    >Total {{ form.controls.currencyCode.value }}
+                    {{ linePreview(i).total | number: '1.2-2' }}</strong
+                  >
+                </div>
+              </div>
+            }
+          </div>
+          <button type="button" class="add-line" (click)="addLine()">+ Agregar otra línea</button>
+        </fieldset>
+
+        <section class="quotation-preview" aria-labelledby="quotation-preview-title">
+          <div>
+            <span class="eyebrow">Previsualización</span>
+            <h3 id="quotation-preview-title">Resumen monetario</h3>
+            <p>El servidor recalcula y puede corregir estos valores antes de guardar.</p>
+          </div>
+          <dl>
+            <div>
+              <dt>Subtotal</dt>
+              <dd>
+                {{ form.controls.currencyCode.value }} {{ preview.subtotal | number: '1.2-2' }}
+              </dd>
+            </div>
+            <div>
+              <dt>Impuesto</dt>
+              <dd>{{ form.controls.currencyCode.value }} {{ preview.tax | number: '1.2-2' }}</dd>
+            </div>
+            <div class="preview-total">
+              <dt>Total estimado</dt>
+              <dd>{{ form.controls.currencyCode.value }} {{ preview.total | number: '1.2-2' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost-dark" (click)="close()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : editing() ? 'Guardar cambios' : 'Guardar borrador' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (detail(); as item) {
+  <div class="modal-backdrop" role="presentation">
+    <div
+      class="resource-modal quotation-detail-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quotation-detail-title"
+    >
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Detalle de venta</span>
+          <h2 id="quotation-detail-title">{{ displayNumber(item) }}</h2>
+        </div>
+        <button type="button" (click)="closeDetail()" aria-label="Cerrar detalle">×</button>
+      </div>
+      <div class="detail-meta">
+        <div>
+          <span>Cliente</span><strong>{{ item.customerName }}</strong
+          ><small>{{ item.customerDocumentType }} {{ item.customerDocumentNumber }}</small>
+        </div>
+        <div>
+          <span>Estado</span
+          ><strong
+            ><span [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span></strong
+          >
+        </div>
+        <div>
+          <span>Vigencia</span><strong>{{ displayDate(item.validUntil) }}</strong>
+        </div>
+        <div>
+          <span>Responsable</span><strong>{{ item.ownerDisplayName }}</strong>
+        </div>
+        <div>
+          <span>Procedimiento</span><strong>{{ procurementLabel(item.procurementType) }}</strong>
+        </div>
+        <div>
+          <span>Resultado</span>
+          <strong>
+            <span [class]="outcomeClass(item.outcome)">{{ outcomeLabel(item.outcome) }}</span>
+          </strong>
+          @if (item.outcomeSource) {
+            <small>{{ outcomeSourceLabels[item.outcomeSource] }}</small>
+          }
+        </div>
+        @if (item.deliveryTermDays || item.warrantyMonths) {
+          <div>
+            <span>Oferta</span>
+            <strong>
+              @if (item.deliveryTermDays) {
+                Entrega en {{ item.deliveryTermDays }} días
+              }
+            </strong>
+            @if (item.warrantyMonths !== null) {
+              <small>Garantía {{ item.warrantyMonths }} meses</small>
+            }
+          </div>
+        }
+        @if (item.ocamNumber || item.ocamDate) {
+          <div>
+            <span>OCAM</span><strong>{{ item.ocamNumber || 'Sin número' }}</strong>
+            @if (item.ocamDate) {
+              <small>{{ displayDate(item.ocamDate) }}</small>
+            }
+          </div>
+        }
+      </div>
+      @if (item.outcomeReason) {
+        <div class="detail-reason" role="note">
+          <strong>Motivo del cierre:</strong>
+          {{ item.outcomeReason }}
+        </div>
+      }
+      <div class="table-wrap detail-table-wrap">
+        <table>
+          <caption class="sr-only">
+            Líneas de
+            {{
+              displayNumber(item)
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of item.items; track line.lineNumber) {
+              <tr>
+                <td>{{ line.lineNumber }}</td>
+                <td>
+                  <strong>{{ line.description }}</strong
+                  ><small>{{ line.sku }} · {{ line.unit }}</small>
+                </td>
+                <td>{{ line.quantity | number: '1.0-4' }}</td>
+                <td>{{ item.currencyCode }} {{ line.unitPrice | number: '1.2-2' }}</td>
+                <td>{{ item.currencyCode }} {{ line.lineTotal | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (item.notes) {
+        <p class="detail-notes"><strong>Notas:</strong> {{ item.notes }}</p>
+      }
+      <dl class="detail-totals">
+        <div>
+          <dt>Subtotal</dt>
+          <dd>{{ item.currencyCode }} {{ item.subtotalAmount | number: '1.2-2' }}</dd>
+        </div>
+        <div>
+          <dt>Impuesto</dt>
+          <dd>{{ item.currencyCode }} {{ item.taxAmount | number: '1.2-2' }}</dd>
+        </div>
+        <div>
+          <dt>Total</dt>
+          <dd>{{ item.currencyCode }} {{ item.totalAmount | number: '1.2-2' }}</dd>
+        </div>
+      </dl>
+      <div class="modal-actions">
+        @if (canWrite() && item.status === 'DRAFT') {
+          <button type="button" class="btn btn-ghost-dark" (click)="closeDetail(); open(item)">
+            Editar borrador
+          </button>
+        }
+        @if (item.issuedPdfPublicId) {
+          <button
+            type="button"
+            class="btn btn-blue"
+            [disabled]="isBusy(item, 'pdf')"
+            (click)="downloadPdf(item)"
+          >
+            Descargar PDF
+          </button>
+        }
+        <button type="button" class="btn btn-ghost-dark" (click)="closeDetail()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (outcomeTarget(); as item) {
+  <div class="modal-backdrop" role="presentation">
+    <div
+      class="resource-modal outcome-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="outcome-title"
+    >
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Cierre del proceso</span>
+          <h2 id="outcome-title">Registrar resultado de {{ displayNumber(item) }}</h2>
+        </div>
+        <button class="modal-close" type="button" (click)="closeOutcome()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <p class="modal-intro">
+        {{ item.customerName }} · {{ procurementLabel(item.procurementType) }} ·
+        {{ item.currencyCode }} {{ item.totalAmount | number: '1.2-2' }}
+      </p>
+
+      <div class="resource-grid">
+        <label class="full-field">
+          ¿Qué pasó con esta cotización? *
+          <select [(ngModel)]="outcomeChoice" (change)="onOutcomeChoiceChange()">
+            <option value="SELECCIONADA">Nos seleccionaron</option>
+            <option value="NO_SELECCIONADA">No nos seleccionaron (eligieron a otro)</option>
+            <option value="DESIERTA">Quedó desierta (la entidad no adjudicó a nadie)</option>
+            <option value="RECHAZADA">La entidad rechazó o anuló el proceso</option>
+            <option value="ANULADA">La retiramos nosotros</option>
+          </select>
+        </label>
+
+        <label class="full-field">
+          ¿Quién tomó la decisión? *
+          <select [(ngModel)]="outcomeSourceChoice">
+            <option value="ENTIDAD">La entidad / el cliente</option>
+            <option value="NOSOTROS">Nosotros</option>
+          </select>
+          <small>
+            No es lo mismo perder por precio que retirarse porque el proveedor subió el costo.
+          </small>
+        </label>
+
+        @if (outcomeNeedsReason) {
+          <label class="full-field">
+            Motivo *
+            <textarea
+              [(ngModel)]="outcomeReason"
+              rows="3"
+              maxlength="500"
+              placeholder="Ej.: la entidad eligió a otro proveedor con precio menor (diferencia de S/ 380)."
+            ></textarea>
+            @if (outcomeReasonMissing) {
+              <span class="field-error">
+                Escribe el motivo (mínimo 5 caracteres). Es obligatorio para poder revisarlo
+                después.
+              </span>
+            } @else {
+              <small>Queda guardado en el historial y se puede consultar luego.</small>
+            }
+          </label>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost-dark" (click)="closeOutcome()">Cancelar</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="outcomeReasonMissing || busyAction() !== null"
+          (click)="confirmOutcome()"
+        >
+          Guardar resultado
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (ocamTarget(); as item) {
+  <div class="modal-backdrop" role="presentation">
+    <div class="resource-modal" role="dialog" aria-modal="true" aria-labelledby="ocam-title">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Acuerdo Marco</span>
+          <h2 id="ocam-title">OCAM de {{ displayNumber(item) }}</h2>
+        </div>
+        <button class="modal-close" type="button" (click)="closeOcam()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <p class="modal-intro">
+        La orden de compra suele llegar días después de ganar. Puedes registrar solo el número, solo
+        la fecha, o ambos, y completarlo más adelante.
+      </p>
+
+      <div class="resource-grid">
+        <label>
+          Número de OCAM
+          <input [(ngModel)]="ocamNumber" maxlength="60" placeholder="OCAM 00123-2026" />
+        </label>
+        <label>
+          Fecha de la OCAM
+          <input type="date" [(ngModel)]="ocamDate" />
+        </label>
+      </div>
+
+      @if (ocamIncomplete) {
+        <p class="field-error">Indica al menos el número o la fecha.</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost-dark" (click)="closeOcam()">Cancelar</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="ocamIncomplete || busyAction() !== null"
+          (click)="confirmOcam()"
+        >
+          Guardar OCAM
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,1326 @@
+<div class="resource-head accounting-head">
+  <div>
+    <span class="eyebrow">{{ meta().eyebrow }}</span>
+    <h1>{{ meta().title }}</h1>
+    <p>{{ meta().description }}</p>
+  </div>
+  <div class="accounting-head-actions">
+    <span class="accounting-role-note">
+      {{ canWrite() ? 'Edición contable habilitada' : 'Vista de lectura vinculada a tus ventas' }}
+    </span>
+    @if (canWrite() && section() === 'invoices') {
+      <button class="btn btn-blue" type="button" (click)="openXmlImport()">
+        Subir factura XML
+      </button>
+    }
+    @if (canWrite()) {
+      <button class="btn btn-primary" type="button" (click)="newRecord()">
+        {{ meta().article }} {{ meta().singular }}
+      </button>
+    }
+  </div>
+</div>
+
+<nav class="accounting-tabs" aria-label="Módulos contables">
+  @for (link of sectionLinks; track link.key) {
+    <a [routerLink]="link.path" [class.active]="link.key === section()">{{ link.label }}</a>
+  }
+</nav>
+
+<div class="accounting-toolbar resource-toolbar">
+  <label class="accounting-search">
+    <span>Buscar</span>
+    <input
+      [(ngModel)]="query"
+      placeholder="Número, cliente o relación"
+      (keyup.enter)="search()"
+      aria-label="Buscar registros contables"
+    />
+  </label>
+  <label>
+    <span>Estado</span>
+    <select [(ngModel)]="statusFilter" (change)="search()" aria-label="Filtrar por estado">
+      <option value="ALL">Todos los estados</option>
+      @switch (section()) {
+        @case ('invoices') {
+          <option value="DRAFT">Borradores</option>
+          <option value="ISSUED">Emitidas</option>
+          <option value="CANCELLED">Anuladas</option>
+        }
+        @case ('orders') {
+          <option value="REGISTERED">Registradas</option>
+          <option value="IN_PROGRESS">En proceso</option>
+          <option value="DELIVERED">Entregadas</option>
+          <option value="CANCELLED">Anuladas</option>
+        }
+        @case ('deliveries') {
+          <option value="DRAFT">Borradores</option>
+          <option value="SIGNED">Firmadas</option>
+          <option value="CANCELLED">Anuladas</option>
+        }
+        @case ('warranties') {
+          <option value="ACTIVE">Activas</option>
+          <option value="EXPIRED">Vencidas</option>
+          <option value="CLAIMED">Reclamadas</option>
+          <option value="CANCELLED">Anuladas</option>
+        }
+      }
+    </select>
+  </label>
+  <label>
+    <span>Cliente</span>
+    <select [(ngModel)]="customerFilter" (change)="search()" aria-label="Filtrar por cliente">
+      <option value="">Todos los clientes</option>
+      @for (customer of customers(); track customer.publicId) {
+        <option [value]="customer.publicId">
+          {{ customer.businessName || customer.contactName || 'Sin nombre' }}
+        </option>
+      }
+    </select>
+  </label>
+  <button class="btn btn-blue accounting-refresh" type="button" (click)="load()">Actualizar</button>
+</div>
+
+@if (error()) {
+  <div class="resource-alert error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status">{{ notice() }}</div>
+}
+
+<section class="accounting-results" aria-labelledby="accounting-results-title">
+  <div class="accounting-results-head">
+    <div>
+      <span class="eyebrow">Resultados</span>
+      <h2 id="accounting-results-title">{{ meta().title }}</h2>
+    </div>
+    <span class="accounting-count"
+      ><strong>{{ totalItems() }}</strong> registros · API real</span
+    >
+  </div>
+
+  @if (loading()) {
+    <p class="empty accounting-loading">Cargando información contable…</p>
+  } @else {
+    @switch (section()) {
+      @case ('invoices') {
+        <div class="table-wrap accounting-table-wrap">
+          <table class="accounting-table">
+            <caption class="sr-only">
+              Tabla de facturas internas
+            </caption>
+            <thead>
+              <tr>
+                <th>Comprobante</th>
+                <th>Cliente</th>
+                <th>Emisión / vencimiento</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Registró</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of invoices(); track item.publicId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.invoiceNumber }}</strong
+                    ><small>{{ invoiceTypeLabel(item.invoiceType) }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ item.customerName }}</strong
+                    ><small
+                      >{{ item.customerDocumentType }} {{ item.customerDocumentNumber }}</small
+                    >
+                  </td>
+                  <td>
+                    {{ formatDate(item.issueDate)
+                    }}<small>Vence: {{ formatDate(item.dueDate) }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ item.currencyCode }} {{ item.totalAmount | number: '1.2-2' }}</strong
+                    ><small>Sub. {{ item.subtotalAmount | number: '1.2-2' }}</small>
+                  </td>
+                  <td>
+                    <span class="accounting-status" [attr.data-status]="item.status">{{
+                      statusLabel(item.status)
+                    }}</span>
+                  </td>
+                  <td>{{ item.registeredByDisplayName }}</td>
+                  <td class="row-actions accounting-actions">
+                    <button type="button" (click)="openDetail(item)">Ver</button>
+                    @if (canEdit(item)) {
+                      <button type="button" (click)="editRecord(item)">Editar</button>
+                    }
+                    @for (action of statusActions(item); track action.value) {
+                      <button type="button" (click)="changeStatus(item, action.value)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="empty">No hay facturas para mostrar.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @case ('orders') {
+        <div class="table-wrap accounting-table-wrap">
+          <table class="accounting-table">
+            <caption class="sr-only">
+              Tabla de órdenes de compra
+            </caption>
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Cliente</th>
+                <th>Fechas</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Responsable</th>
+                <th>Relaciones</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of orders(); track item.publicId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.orderNumber }}</strong
+                    ><small>{{ item.currencyCode }} · {{ item.items.length }} líneas</small>
+                  </td>
+                  <td>
+                    <strong>{{ item.customerName }}</strong
+                    ><small
+                      >{{ item.customerDocumentType }} {{ item.customerDocumentNumber }}</small
+                    >
+                  </td>
+                  <td>
+                    {{ formatDate(item.issueDate)
+                    }}<small>Entrega: {{ formatDate(item.expectedDeliveryDate) }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ item.currencyCode }} {{ item.totalAmount | number: '1.2-2' }}</strong
+                    ><small>Sub. {{ item.subtotalAmount | number: '1.2-2' }}</small>
+                  </td>
+                  <td>
+                    <span class="accounting-status" [attr.data-status]="item.status">{{
+                      statusLabel(item.status)
+                    }}</span>
+                  </td>
+                  <td>{{ item.responsibleWorkerDisplayName }}</td>
+                  <td>
+                    <small>Cotización: {{ item.quotationNumber || '—' }}</small
+                    ><small>Factura: {{ item.invoiceNumber || '—' }}</small>
+                  </td>
+                  <td class="row-actions accounting-actions">
+                    <button type="button" (click)="openDetail(item)">Ver</button>
+                    @if (canEdit(item)) {
+                      <button type="button" (click)="editRecord(item)">Editar</button>
+                    }
+                    @for (action of statusActions(item); track action.value) {
+                      <button type="button" (click)="changeStatus(item, action.value)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="empty">No hay órdenes para mostrar.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @case ('deliveries') {
+        <div class="table-wrap accounting-table-wrap">
+          <table class="accounting-table">
+            <caption class="sr-only">
+              Tabla de actas de entrega
+            </caption>
+            <thead>
+              <tr>
+                <th>Acta</th>
+                <th>Orden</th>
+                <th>Cliente</th>
+                <th>Entrega</th>
+                <th>Receptor</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of deliveries(); track item.publicId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.deliveryNumber }}</strong
+                    ><small>Creada {{ formatDateTime(item.createdAt) }}</small>
+                  </td>
+                  <td>{{ item.orderNumber }}</td>
+                  <td>
+                    <strong>{{ item.customerName }}</strong
+                    ><small>{{ item.customerPublicId }}</small>
+                  </td>
+                  <td>{{ formatDateTime(item.deliveredAt) }}</td>
+                  <td>
+                    {{ item.receivedByName || 'Pendiente'
+                    }}<small>{{ item.receivedByDocument || 'Sin documento' }}</small>
+                  </td>
+                  <td>
+                    <span class="accounting-status" [attr.data-status]="item.status">{{
+                      statusLabel(item.status)
+                    }}</span>
+                  </td>
+                  <td class="row-actions accounting-actions">
+                    <button type="button" (click)="openDetail(item)">Ver</button>
+                    @if (canEdit(item)) {
+                      <button type="button" (click)="editRecord(item)">Editar</button>
+                    }
+                    @for (action of statusActions(item); track action.value) {
+                      <button type="button" (click)="changeStatus(item, action.value)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="empty">No hay actas para mostrar.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @case ('warranties') {
+        <div class="table-wrap accounting-table-wrap">
+          <table class="accounting-table">
+            <caption class="sr-only">
+              Tabla de garantías
+            </caption>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Producto / serie</th>
+                <th>Vigencia</th>
+                <th>Orden</th>
+                <th>Estado</th>
+                <th>Documentos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of warranties(); track item.publicId) {
+                <tr>
+                  <td>
+                    <strong>{{ item.customerName }}</strong
+                    ><small>{{ item.customerPublicId }}</small>
+                  </td>
+                  <td>
+                    {{ item.productName || 'Garantía general'
+                    }}<small
+                      >{{ item.productSku || 'Sin SKU' }} ·
+                      {{ item.serialNumber || 'Sin serie' }}</small
+                    >
+                  </td>
+                  <td>
+                    {{ formatDate(item.startsOn)
+                    }}<small>Hasta: {{ formatDate(item.endsOn) }}</small>
+                  </td>
+                  <td>
+                    {{ item.orderNumber || '—'
+                    }}<small>Línea: {{ item.purchaseOrderLineNumber || '—' }}</small>
+                  </td>
+                  <td>
+                    <span class="accounting-status" [attr.data-status]="item.status">{{
+                      statusLabel(item.status)
+                    }}</span>
+                  </td>
+                  <td>{{ item.documents.length }}</td>
+                  <td class="row-actions accounting-actions">
+                    <button type="button" (click)="openDetail(item)">Ver</button>
+                    @if (canEdit(item)) {
+                      <button type="button" (click)="editRecord(item)">Editar</button>
+                    }
+                    @for (action of statusActions(item); track action.value) {
+                      <button type="button" (click)="changeStatus(item, action.value)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="empty">No hay garantías para mostrar.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+</section>
+
+@if (!loading() && totalPages() > 1) {
+  <div class="pagination accounting-pagination">
+    <button
+      class="btn btn-ghost-dark"
+      type="button"
+      (click)="previousPage()"
+      [disabled]="page() === 0"
+    >
+      Anterior
+    </button>
+    <span>Página {{ page() + 1 }} de {{ totalPages() }}</span>
+    <button
+      class="btn btn-ghost-dark"
+      type="button"
+      (click)="nextPage()"
+      [disabled]="page() + 1 >= totalPages()"
+    >
+      Siguiente
+    </button>
+  </div>
+}
+
+@if (detail(); as selected) {
+  <div class="modal-backdrop" role="presentation" (click)="closeDetailFromBackdrop($event)">
+    <article
+      class="resource-modal accounting-detail-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="accounting-detail-title"
+    >
+      <header class="modal-head accounting-modal-head">
+        <div>
+          <span class="eyebrow">Detalle contable</span>
+          <h2 id="accounting-detail-title">{{ recordHeading(selected) }}</h2>
+          <p>
+            {{
+              isSeller()
+                ? 'Consulta vinculada a tus cotizaciones.'
+                : 'Registro interno y documentos asociados.'
+            }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeDetail()"
+          aria-label="Cerrar detalle"
+        >
+          ×
+        </button>
+      </header>
+      @if (detailLoading()) {
+        <p class="empty">Actualizando detalle…</p>
+      }
+      @switch (section()) {
+        @case ('invoices') {
+          @let invoice = asInvoice(selected);
+          <dl class="accounting-detail-grid">
+            <div>
+              <dt>Cliente</dt>
+              <dd>
+                {{ invoice.customerName
+                }}<small
+                  >{{ invoice.customerDocumentType }} {{ invoice.customerDocumentNumber }}</small
+                >
+              </dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>
+                <span class="accounting-status" [attr.data-status]="invoice.status">{{
+                  statusLabel(invoice.status)
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Emisión</dt>
+              <dd>{{ formatDate(invoice.issueDate) }}</dd>
+            </div>
+            <div>
+              <dt>Vencimiento</dt>
+              <dd>{{ formatDate(invoice.dueDate) }}</dd>
+            </div>
+            <div>
+              <dt>Relación</dt>
+              <dd>{{ invoice.quotationNumber || 'Sin cotización' }}</dd>
+            </div>
+            <div>
+              <dt>Total</dt>
+              <dd class="detail-total">
+                {{ invoice.currencyCode }} {{ invoice.totalAmount | number: '1.2-2' }}
+              </dd>
+            </div>
+          </dl>
+          <ng-container
+            *ngTemplateOutlet="invoiceLinesTemplate; context: { $implicit: invoice.items }"
+          />
+        }
+        @case ('orders') {
+          @let order = asOrder(selected);
+          <dl class="accounting-detail-grid">
+            <div>
+              <dt>Cliente</dt>
+              <dd>
+                {{ order.customerName
+                }}<small>{{ order.customerDocumentType }} {{ order.customerDocumentNumber }}</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>
+                <span class="accounting-status" [attr.data-status]="order.status">{{
+                  statusLabel(order.status)
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Emisión</dt>
+              <dd>{{ formatDate(order.issueDate) }}</dd>
+            </div>
+            <div>
+              <dt>Entrega esperada</dt>
+              <dd>{{ formatDate(order.expectedDeliveryDate) }}</dd>
+            </div>
+            <div>
+              <dt>Relaciones</dt>
+              <dd>
+                {{ order.quotationNumber || 'Sin cotización' }} ·
+                {{ order.invoiceNumber || 'Sin factura' }}
+              </dd>
+            </div>
+            <div>
+              <dt>Total</dt>
+              <dd class="detail-total">
+                {{ order.currencyCode }} {{ order.totalAmount | number: '1.2-2' }}
+              </dd>
+            </div>
+          </dl>
+          <ng-container
+            *ngTemplateOutlet="orderLinesTemplate; context: { $implicit: order.items }"
+          />
+        }
+        @case ('deliveries') {
+          @let delivery = asDelivery(selected);
+          <dl class="accounting-detail-grid">
+            <div>
+              <dt>Cliente</dt>
+              <dd>{{ delivery.customerName }}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>
+                <span class="accounting-status" [attr.data-status]="delivery.status">{{
+                  statusLabel(delivery.status)
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Orden</dt>
+              <dd>{{ delivery.orderNumber }}</dd>
+            </div>
+            <div>
+              <dt>Fecha de entrega</dt>
+              <dd>{{ formatDateTime(delivery.deliveredAt) }}</dd>
+            </div>
+            <div>
+              <dt>Recibió</dt>
+              <dd>
+                {{ delivery.receivedByName || 'Pendiente'
+                }}<small>{{ delivery.receivedByDocument || 'Sin documento' }}</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Notas</dt>
+              <dd>{{ delivery.notes || 'Sin notas' }}</dd>
+            </div>
+          </dl>
+        }
+        @case ('warranties') {
+          @let warranty = asWarranty(selected);
+          <dl class="accounting-detail-grid">
+            <div>
+              <dt>Cliente</dt>
+              <dd>{{ warranty.customerName }}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>
+                <span class="accounting-status" [attr.data-status]="warranty.status">{{
+                  statusLabel(warranty.status)
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>Producto</dt>
+              <dd>
+                {{ warranty.productName || 'Garantía general'
+                }}<small>{{ warranty.productSku || 'Sin SKU' }}</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Serie</dt>
+              <dd>{{ warranty.serialNumber || 'Sin serie' }}</dd>
+            </div>
+            <div>
+              <dt>Vigencia</dt>
+              <dd>{{ formatDate(warranty.startsOn) }} — {{ formatDate(warranty.endsOn) }}</dd>
+            </div>
+            <div>
+              <dt>Orden</dt>
+              <dd>{{ warranty.orderNumber || 'Sin orden' }}</dd>
+            </div>
+          </dl>
+          <div class="accounting-copy">
+            <strong>Condiciones</strong>
+            <p>{{ warranty.conditions || 'Sin condiciones registradas.' }}</p>
+          </div>
+        }
+      }
+
+      <section class="accounting-documents" aria-labelledby="accounting-documents-title">
+        <div class="accounting-section-head">
+          <div>
+            <span class="eyebrow">Respaldo</span>
+            <h3 id="accounting-documents-title">Documentos asociados</h3>
+          </div>
+          <span>{{ selected.documents.length }} archivo(s)</span>
+        </div>
+        @if (selected.documents.length) {
+          <ul class="document-list">
+            @for (document of selected.documents; track document.publicId) {
+              <li>
+                <div>
+                  <strong>{{ document.originalName }}</strong
+                  ><small
+                    >{{ documentRoleLabel(document.role) }} · {{ documentSize(document) }}</small
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-ghost-dark"
+                  (click)="downloadDocument(document)"
+                  [disabled]="busyAction() === 'download:' + document.publicId"
+                >
+                  Descargar
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="accounting-muted">Todavía no hay documentos vinculados.</p>
+        }
+        @if (canWrite() && canEdit(selected)) {
+          <form class="upload-panel" (ngSubmit)="uploadDocument()">
+            <div>
+              <strong>Agregar documento</strong
+              ><small
+                >El archivo se valida en el backend antes de almacenarse de forma privada.</small
+              >
+            </div>
+            <div class="upload-fields">
+              <label
+                >Tipo<select [(ngModel)]="uploadRole" name="uploadRole">
+                  <option value="" disabled>Selecciona</option>
+                  @for (role of documentRoleOptions(); track role.value) {
+                    <option [value]="role.value">{{ role.label }}</option>
+                  }
+                </select></label
+              >
+              <label class="file-field"
+                >Archivo<input
+                  type="file"
+                  [attr.accept]="uploadAccept()"
+                  (change)="onFileSelected($event)"
+              /></label>
+              <button class="btn btn-blue" type="submit" [disabled]="uploading()">
+                {{ uploading() ? 'Cargando…' : 'Cargar' }}
+              </button>
+            </div>
+            @if (selectedFile(); as file) {
+              <small class="selected-file">{{ file.name }} · {{ formatBytes(file.size) }}</small>
+            }
+            @if (uploading()) {
+              <progress max="100" [value]="uploadProgress()">{{ uploadProgress() }}%</progress>
+            }
+            @if (uploadError()) {
+              <p class="upload-error" role="alert">{{ uploadError() }}</p>
+            }
+          </form>
+        }
+      </section>
+      <footer class="modal-actions">
+        <button type="button" class="btn btn-ghost-dark" (click)="closeDetail()">Cerrar</button>
+      </footer>
+    </article>
+  </div>
+}
+
+@if (formOpen()) {
+  <div class="modal-backdrop" role="presentation" (click)="closeFromBackdrop($event)">
+    <div
+      class="resource-modal accounting-form-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="accounting-form-title"
+    >
+      <header class="modal-head accounting-modal-head">
+        <div>
+          <span class="eyebrow">{{ editing() ? 'Editar registro' : 'Nuevo registro' }}</span>
+          <h2 id="accounting-form-title">
+            {{ editing() ? 'Editar' : meta().article }} {{ meta().singular }}
+          </h2>
+          <p>Completa los datos y guarda solo cuando el formulario sea válido.</p>
+        </div>
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeForm()"
+          aria-label="Cerrar formulario"
+        >
+          ×
+        </button>
+      </header>
+      @switch (section()) {
+        @case ('invoices') {
+          <form [formGroup]="invoiceForm" (ngSubmit)="save()">
+            <div class="resource-grid">
+              <label>Número de comprobante *<input formControlName="invoiceNumber" /></label>
+              <label
+                >Tipo *<select formControlName="invoiceType">
+                  <option value="INVOICE">Factura</option>
+                  <option value="RECEIPT">Boleta</option>
+                  <option value="OTHER">Otro</option>
+                </select></label
+              >
+              <label
+                >Cliente *<select formControlName="customerPublicId">
+                  <option value="">Selecciona un cliente</option>
+                  @for (customer of customers(); track customer.publicId) {
+                    <option [value]="customer.publicId">
+                      {{ customer.businessName || customer.contactName || 'Sin nombre' }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Cotización relacionada<select formControlName="quotationPublicId">
+                  <option value="">Sin cotización</option>
+                  @for (quotation of quotations(); track quotation.publicId) {
+                    <option [value]="quotation.publicId">
+                      {{ quotation.quotationNumber || 'Borrador' }} · {{ quotation.customerName }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label>Fecha de emisión *<input type="date" formControlName="issueDate" /></label>
+              <label>Fecha de vencimiento<input type="date" formControlName="dueDate" /></label>
+              <label
+                >Moneda *<select
+                  formControlName="currencyCode"
+                  (change)="onCurrencyChange(invoiceForm)"
+                >
+                  <option value="PEN">PEN — Soles</option>
+                  <option value="USD">USD — Dólares</option>
+                </select></label
+              >
+              <label
+                >Tipo de cambio a PEN *<input
+                  type="number"
+                  step="0.000001"
+                  formControlName="exchangeRateToPen"
+                /><small>Para PEN se usa 1.</small></label
+              >
+              <label
+                >Tasa de impuesto<input
+                  type="number"
+                  step="0.000001"
+                  formControlName="taxRate"
+                /><small>Usa 0.18 para 18%.</small></label
+              >
+              <label class="check"
+                ><input type="checkbox" formControlName="includesTax" />Precios incluyen
+                impuesto</label
+              >
+              <label class="full-field"
+                >Notas<textarea
+                  formControlName="notes"
+                  placeholder="Observaciones internas"
+                ></textarea>
+              </label>
+            </div>
+            <ng-container *ngTemplateOutlet="invoiceEditorTemplate" />
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost-dark" (click)="closeForm()">
+                Cancelar</button
+              ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Guardando…' : 'Guardar factura' }}
+              </button>
+            </div>
+          </form>
+        }
+        @case ('orders') {
+          <form [formGroup]="orderForm" (ngSubmit)="save()">
+            <div class="resource-grid">
+              <label>Número de orden *<input formControlName="orderNumber" /></label>
+              <label
+                >Cliente *<select formControlName="customerPublicId">
+                  <option value="">Selecciona un cliente</option>
+                  @for (customer of customers(); track customer.publicId) {
+                    <option [value]="customer.publicId">
+                      {{ customer.businessName || customer.contactName || 'Sin nombre' }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Cotización relacionada<select formControlName="quotationPublicId">
+                  <option value="">Sin cotización</option>
+                  @for (quotation of quotations(); track quotation.publicId) {
+                    <option [value]="quotation.publicId">
+                      {{ quotation.quotationNumber || 'Borrador' }} · {{ quotation.customerName }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Factura relacionada<select formControlName="invoicePublicId">
+                  <option value="">Sin factura</option>
+                  @for (invoice of invoiceOptions(); track invoice.publicId) {
+                    <option [value]="invoice.publicId">
+                      {{ invoice.invoiceNumber }} · {{ invoice.customerName }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label>Fecha de emisión *<input type="date" formControlName="issueDate" /></label>
+              <label
+                >Entrega esperada<input type="date" formControlName="expectedDeliveryDate"
+              /></label>
+              <label>Fecha entregada<input type="date" formControlName="deliveredDate" /></label>
+              <label
+                >Moneda *<select
+                  formControlName="currencyCode"
+                  (change)="onCurrencyChange(orderForm)"
+                >
+                  <option value="PEN">PEN — Soles</option>
+                  <option value="USD">USD — Dólares</option>
+                </select></label
+              >
+              <label
+                >Tipo de cambio a PEN *<input
+                  type="number"
+                  step="0.000001"
+                  formControlName="exchangeRateToPen"
+              /></label>
+              <label
+                >Tasa de impuesto<input type="number" step="0.000001" formControlName="taxRate"
+              /></label>
+              <label class="check"
+                ><input type="checkbox" formControlName="includesTax" />Precios incluyen
+                impuesto</label
+              >
+              <label class="full-field"
+                >Notas<textarea
+                  formControlName="notes"
+                  placeholder="Observaciones internas"
+                ></textarea>
+              </label>
+            </div>
+            <ng-container *ngTemplateOutlet="orderEditorTemplate" />
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost-dark" (click)="closeForm()">
+                Cancelar</button
+              ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Guardando…' : 'Guardar orden' }}
+              </button>
+            </div>
+          </form>
+        }
+        @case ('deliveries') {
+          <form [formGroup]="deliveryForm" (ngSubmit)="save()">
+            <div class="resource-grid">
+              <label>Número de acta *<input formControlName="deliveryNumber" /></label>
+              <label
+                >Orden relacionada *<select formControlName="purchaseOrderPublicId">
+                  <option value="">Selecciona una orden</option>
+                  @for (order of orderOptions(); track order.publicId) {
+                    <option [value]="order.publicId">
+                      {{ order.orderNumber }} · {{ order.customerName }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Fecha de entrega<input type="datetime-local" formControlName="deliveredAt"
+              /></label>
+              <label>Recibido por<input formControlName="receivedByName" /></label>
+              <label>Documento del receptor<input formControlName="receivedByDocument" /></label>
+              <label class="full-field"
+                >Notas<textarea
+                  formControlName="notes"
+                  placeholder="Observaciones del acta"
+                ></textarea>
+              </label>
+            </div>
+            <p class="accounting-form-note">
+              Firmar el acta exige una fecha de entrega; puedes completarla antes de guardar o al
+              confirmar la transición.
+            </p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost-dark" (click)="closeForm()">
+                Cancelar</button
+              ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Guardando…' : 'Guardar acta' }}
+              </button>
+            </div>
+          </form>
+        }
+        @case ('warranties') {
+          <form [formGroup]="warrantyForm" (ngSubmit)="save()">
+            <div class="resource-grid">
+              <label
+                >Cliente *<select formControlName="customerPublicId">
+                  <option value="">Selecciona un cliente</option>
+                  @for (customer of customers(); track customer.publicId) {
+                    <option [value]="customer.publicId">
+                      {{ customer.businessName || customer.contactName || 'Sin nombre' }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Orden relacionada<select formControlName="purchaseOrderPublicId">
+                  <option value="">Sin orden</option>
+                  @for (order of orderOptions(); track order.publicId) {
+                    <option [value]="order.publicId">
+                      {{ order.orderNumber }} · {{ order.customerName }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label
+                >Producto<select formControlName="productId">
+                  <option [ngValue]="null">Garantía general</option>
+                  @for (product of products(); track product.id) {
+                    <option [ngValue]="product.id">{{ product.sku }} · {{ product.name }}</option>
+                  }
+                </select></label
+              >
+              <label
+                >Línea de la orden<input
+                  type="number"
+                  min="1"
+                  formControlName="purchaseOrderLineNumber"
+              /></label>
+              <label>Número de serie<input formControlName="serialNumber" /></label>
+              <label>Inicio de vigencia *<input type="date" formControlName="startsOn" /></label>
+              <label>Fin de vigencia *<input type="date" formControlName="endsOn" /></label>
+              <label class="full-field"
+                >Condiciones<textarea
+                  formControlName="conditions"
+                  placeholder="Condiciones de cobertura"
+                ></textarea>
+              </label>
+              <label class="full-field"
+                >Notas<textarea
+                  formControlName="notes"
+                  placeholder="Observaciones internas"
+                ></textarea>
+              </label>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost-dark" (click)="closeForm()">
+                Cancelar</button
+              ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Guardando…' : 'Guardar garantía' }}
+              </button>
+            </div>
+          </form>
+        }
+      }
+    </div>
+  </div>
+}
+
+<ng-template #invoiceEditorTemplate>
+  <section class="line-editor" aria-labelledby="invoice-lines-title">
+    <div class="accounting-section-head">
+      <div>
+        <span class="eyebrow">Detalle</span>
+        <h3 id="invoice-lines-title">Líneas de la factura</h3>
+      </div>
+      <button type="button" class="btn btn-ghost-dark" (click)="addLine()">+ Agregar línea</button>
+    </div>
+    @for (line of invoiceLines.controls; track $index) {
+      <div class="line-card" [formGroup]="line">
+        <div class="line-card-head">
+          <strong>Línea {{ $index + 1 }}</strong
+          ><button
+            type="button"
+            (click)="removeLine($index)"
+            [disabled]="invoiceLines.length === 1"
+          >
+            Quitar
+          </button>
+        </div>
+        <div class="resource-grid line-grid">
+          <label
+            >Producto<select formControlName="productId" (change)="onProductChange(line)">
+              <option value="">Concepto manual</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.sku }} · {{ product.name }}</option>
+              }
+            </select></label
+          ><label>SKU *<input formControlName="sku" /></label
+          ><label class="full-field">Descripción *<input formControlName="description" /></label
+          ><label>Unidad *<input formControlName="unit" /></label
+          ><label>Cantidad *<input type="number" step="0.0001" formControlName="quantity" /></label
+          ><label
+            >Precio unitario *<input type="number" step="0.0001" formControlName="unitPrice"
+          /></label>
+        </div>
+      </div>
+    }
+  </section>
+</ng-template>
+
+<ng-template #orderEditorTemplate>
+  <section class="line-editor" aria-labelledby="order-lines-title">
+    <div class="accounting-section-head">
+      <div>
+        <span class="eyebrow">Detalle</span>
+        <h3 id="order-lines-title">Líneas de la orden</h3>
+      </div>
+      <button type="button" class="btn btn-ghost-dark" (click)="addLine()">+ Agregar línea</button>
+    </div>
+    @for (line of orderLines.controls; track $index) {
+      <div class="line-card" [formGroup]="line">
+        <div class="line-card-head">
+          <strong>Línea {{ $index + 1 }}</strong
+          ><button type="button" (click)="removeLine($index)" [disabled]="orderLines.length === 1">
+            Quitar
+          </button>
+        </div>
+        <div class="resource-grid line-grid">
+          <label
+            >Producto<select formControlName="productId" (change)="onProductChange(line)">
+              <option value="">Concepto manual</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.sku }} · {{ product.name }}</option>
+              }
+            </select></label
+          ><label>SKU *<input formControlName="sku" /></label
+          ><label class="full-field">Descripción *<input formControlName="description" /></label
+          ><label>Unidad *<input formControlName="unit" /></label
+          ><label>Cantidad *<input type="number" step="0.0001" formControlName="quantity" /></label
+          ><label
+            >Precio unitario *<input type="number" step="0.0001" formControlName="unitPrice"
+          /></label>
+        </div>
+      </div>
+    }
+  </section>
+</ng-template>
+
+<ng-template #invoiceLinesTemplate let-items>
+  <div class="table-wrap accounting-detail-lines">
+    <table>
+      <caption class="sr-only">
+        Líneas de la factura
+      </caption>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of items; track line.lineNumber) {
+          <tr>
+            <td>{{ line.sku }}</td>
+            <td>
+              {{ line.description }}<small>{{ line.unit }}</small>
+            </td>
+            <td>{{ line.quantity | number: '1.2-4' }}</td>
+            <td>{{ line.unitPrice | number: '1.2-2' }}</td>
+            <td>
+              <strong>{{ line.lineTotal | number: '1.2-2' }}</strong>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+
+<ng-template #orderLinesTemplate let-items>
+  <div class="table-wrap accounting-detail-lines">
+    <table>
+      <caption class="sr-only">
+        Líneas de la orden
+      </caption>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of items; track line.lineNumber) {
+          <tr>
+            <td>{{ line.sku }}</td>
+            <td>
+              {{ line.description }}<small>{{ line.unit }}</small>
+            </td>
+            <td>{{ line.quantity | number: '1.2-4' }}</td>
+            <td>{{ line.unitPrice | number: '1.2-2' }}</td>
+            <td>
+              <strong>{{ line.lineTotal | number: '1.2-2' }}</strong>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+
+@if (xmlOpen()) {
+  <div class="modal-backdrop" role="presentation">
+    <div
+      class="resource-modal xml-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="xml-import-title"
+    >
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Contabilidad</span>
+          <h2 id="xml-import-title">Registrar factura desde XML</h2>
+        </div>
+        <button class="modal-close" type="button" (click)="closeXmlImport()" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <p class="modal-intro">
+        Sube el XML del comprobante (el que entrega tu proveedor de facturación electrónica). El
+        sistema lee número, fecha, entidad y el detalle línea por línea: no hay que digitar nada.
+      </p>
+
+      <div class="xml-drop">
+        <label class="xml-file">
+          <span>Archivo XML del comprobante *</span>
+          <input
+            type="file"
+            accept=".xml,text/xml,application/xml"
+            (change)="onXmlFileSelected($event)"
+          />
+        </label>
+        <label class="xml-type">
+          <span>Tipo de documento</span>
+          <select [(ngModel)]="xmlType" (change)="readXml()">
+            <option value="INVOICE">Factura</option>
+            <option value="RECEIPT">Boleta</option>
+            <option value="OTHER">Otro comprobante</option>
+          </select>
+        </label>
+      </div>
+
+      @if (xmlBusy() && !xmlPreview()) {
+        <p class="empty" role="status">Leyendo el archivo…</p>
+      }
+      @if (xmlError()) {
+        <div class="resource-alert error" role="alert">{{ xmlError() }}</div>
+      }
+
+      @if (xmlPreview(); as preview) {
+        <section class="xml-preview" aria-label="Datos leídos del XML">
+          <h3>Datos leídos del comprobante</h3>
+          <dl class="xml-summary">
+            <div>
+              <dt>Número</dt>
+              <dd>{{ preview.invoiceNumber }}</dd>
+            </div>
+            <div>
+              <dt>Fecha de emisión</dt>
+              <dd>{{ formatDate(preview.issueDate) }}</dd>
+            </div>
+            <div>
+              <dt>Vencimiento</dt>
+              <dd>{{ preview.dueDate ? formatDate(preview.dueDate) : 'No indicado' }}</dd>
+            </div>
+            <div>
+              <dt>Moneda</dt>
+              <dd>{{ preview.currencyCode }}</dd>
+            </div>
+            <div>
+              <dt>Emisor</dt>
+              <dd>
+                {{ preview.supplierName || '—' }}<small>{{ preview.supplierDocumentNumber }}</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Entidad / cliente</dt>
+              <dd>
+                {{ preview.customerName || '—' }}
+                <small>RUC {{ preview.customerDocumentNumber || 'no indicado' }}</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Subtotal (sin IGV)</dt>
+              <dd>{{ preview.currencyCode }} {{ xmlSubtotal() | number: '1.2-2' }}</dd>
+            </div>
+            <div>
+              <dt>Total con IGV</dt>
+              <dd>
+                <strong
+                  >{{ preview.currencyCode }}
+                  {{ preview.calculatedTotal | number: '1.2-2' }}</strong
+                >
+                @if (preview.declaredTotal) {
+                  <small>El XML declara {{ preview.declaredTotal | number: '1.2-2' }}</small>
+                }
+              </dd>
+            </div>
+          </dl>
+
+          @if (preview.duplicate) {
+            <div class="resource-alert error" role="alert">
+              Esta factura ya está registrada. El sistema no permite cargar dos veces el mismo
+              comprobante.
+            </div>
+          }
+          @if (!preview.customerFound) {
+            <div class="resource-alert warn" role="status">
+              El RUC {{ preview.customerDocumentNumber }} no está en la cartera de clientes.
+              @if (xmlCreateCustomer) {
+                Se dará de alta como «{{ preview.customerName }}» al registrar.
+              } @else {
+                Marca «Dar de alta al cliente» o regístralo antes de continuar.
+              }
+            </div>
+          }
+          @if (preview.newProductCount > 0) {
+            <div class="resource-alert warn" role="status">
+              {{ preview.newProductCount }}
+              {{ preview.newProductCount === 1 ? 'código no existe' : 'códigos no existen' }} en el
+              catálogo. Esas líneas se guardan con su código y descripción del XML; para que el
+              vendedor las cotice por catálogo, el administrador debe crearlas en Productos.
+            </div>
+          }
+
+          <div class="table-wrap">
+            <table class="xml-lines">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Código</th>
+                  <th>Descripción</th>
+                  <th>Cant.</th>
+                  <th>Precio unit. (sin IGV)</th>
+                  <th>Importe</th>
+                  <th>Catálogo</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of preview.lines; track line.lineNumber) {
+                  <tr>
+                    <td>{{ line.lineNumber }}</td>
+                    <td>
+                      <strong>{{ line.sku }}</strong>
+                    </td>
+                    <td>{{ line.description }}</td>
+                    <td>{{ line.quantity | number: '1.0-4' }} {{ line.unit }}</td>
+                    <td>{{ preview.currencyCode }} {{ line.unitPrice | number: '1.2-4' }}</td>
+                    <td>
+                      {{ preview.currencyCode }}
+                      {{ line.quantity * line.unitPrice | number: '1.2-2' }}
+                    </td>
+                    <td>
+                      @if (line.newProduct) {
+                        <span class="status status-warn">Nuevo</span>
+                      } @else {
+                        <span class="status status-ok">{{ line.matchedProductName }}</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="xml-options">
+            <label class="check">
+              <input type="checkbox" [(ngModel)]="xmlRegisterPrices" />
+              Guardar los precios de estas líneas como precio de compra de referencia
+            </label>
+            <label class="check">
+              <input type="checkbox" [(ngModel)]="xmlCreateCustomer" />
+              Dar de alta al cliente si su RUC no está registrado
+            </label>
+            <label class="full-field">
+              Nota interna (opcional)
+              <input [(ngModel)]="xmlNotes" maxlength="500" placeholder="OCAM, referencia, etc." />
+            </label>
+          </div>
+        </section>
+      }
+
+      @if (xmlResult(); as result) {
+        <section class="xml-result" aria-label="Resultado de la importación">
+          <div class="resource-alert ok" role="status">
+            Factura {{ result.invoice.invoiceNumber }} registrada con
+            {{ result.invoice.items.length }} líneas por {{ result.invoice.currencyCode }}
+            {{ result.invoice.totalAmount | number: '1.2-2' }}.
+          </div>
+          <ul class="xml-result-list">
+            @if (result.customerCreated) {
+              <li>Se dio de alta al cliente {{ result.invoice.customerName }}.</li>
+            }
+            @if (result.priceReferencesCreated > 0) {
+              <li>
+                Se registraron {{ result.priceReferencesCreated }} precios de compra de referencia.
+              </li>
+            }
+            @for (warning of result.warnings; track warning) {
+              <li class="warn">{{ warning }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost-dark" (click)="closeXmlImport()">
+          {{ xmlResult() ? 'Cerrar' : 'Cancelar' }}
+        </button>
+        @if (!xmlResult()) {
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="!xmlCanImport()"
+            (click)="confirmXmlImport()"
+          >
+            {{ xmlBusy() ? 'Registrando…' : 'Registrar factura' }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

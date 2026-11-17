@@ -1,0 +1,414 @@
+<section class="resource-head">
+  <div>
+    <span class="eyebrow">Operaciones</span>
+    <h1>
+      {{
+        section() === 'tasks'
+          ? 'Tareas'
+          : section() === 'goals'
+            ? 'Metas'
+            : section() === 'audit'
+              ? 'Auditoría'
+              : 'Reportes internos'
+      }}
+    </h1>
+    <p>
+      @if (section() === 'tasks') {
+        Organiza pendientes y asignaciones del equipo.
+      } @else if (section() === 'goals') {
+        Consulta el avance calculado de los objetivos por periodo.
+      } @else if (section() === 'audit') {
+        Revisa las acciones registradas por el sistema.
+      } @else {
+        Descarga datos internos con columnas y tipos definidos.
+      }
+    </p>
+  </div>
+  @if (section() === 'tasks' && isAdmin()) {
+    <button class="btn btn-primary" type="button" (click)="openTask()">Nueva tarea</button>
+  } @else if (section() === 'goals' && isAdmin()) {
+    <button class="btn btn-primary" type="button" (click)="openGoal()">Nueva meta</button>
+  }
+</section>
+
+<nav class="module-tabs" aria-label="Módulos operativos">
+  @for (link of links; track link.key) {
+    @if (link.key !== 'audit' || isAdmin()) {
+      @if (link.key !== 'reports' || canReports()) {
+        <a [routerLink]="link.path" [class.active]="section() === link.key">{{ link.label }}</a>
+      }
+    }
+  }
+</nav>
+
+@if (section() === 'reports') {
+  <section class="report-card" aria-labelledby="report-title">
+    <div class="report-card-head">
+      <div>
+        <span class="eyebrow">XLSX</span>
+        <h2 id="report-title">Exportaciones internas</h2>
+      </div>
+      <span class="report-limit">Máximo 366 días y 50 000 filas</span>
+    </div>
+    <div class="resource-grid report-filters">
+      <label>Desde <input type="date" [(ngModel)]="reportFrom" /></label>
+      <label>Hasta <input type="date" [(ngModel)]="reportTo" /></label>
+      <label
+        >Estado
+        <select [(ngModel)]="reportStatus">
+          <option value="">Todos</option>
+          <option value="DRAFT">Borrador</option>
+          <option value="ISSUED">Emitido</option>
+          <option value="CANCELLED">Cancelado</option>
+        </select>
+      </label>
+      <label
+        >Moneda
+        <select [(ngModel)]="reportCurrency">
+          <option value="">Todas</option>
+          <option value="PEN">PEN</option>
+          <option value="USD">USD</option>
+        </select>
+      </label>
+    </div>
+    <div class="report-actions">
+      @if (isAdmin()) {
+        <button
+          class="btn btn-primary"
+          type="button"
+          [disabled]="busyAction() !== null"
+          (click)="downloadReport('quotations')"
+        >
+          {{ busyAction() === 'quotations' ? 'Generando…' : 'Exportar cotizaciones' }}
+        </button>
+      }
+      <button
+        class="btn btn-primary"
+        type="button"
+        [disabled]="busyAction() !== null"
+        (click)="downloadReport('accounting')"
+      >
+        {{ busyAction() === 'accounting' ? 'Generando…' : 'Exportar contabilidad' }}
+      </button>
+    </div>
+  </section>
+} @else {
+  <div class="resource-toolbar">
+    <input
+      [(ngModel)]="query"
+      placeholder="Buscar por título, entidad o actor"
+      (keyup.enter)="search()"
+      aria-label="Buscar"
+    />
+    @if (section() === 'tasks') {
+      <select [(ngModel)]="statusFilter" aria-label="Filtrar tareas por estado">
+        <option value="ALL">Todos los estados</option>
+        <option value="OPEN">Pendientes</option>
+        <option value="IN_PROGRESS">En curso</option>
+        <option value="COMPLETED">Completadas</option>
+        <option value="CANCELLED">Canceladas</option>
+      </select>
+    } @else if (section() === 'goals') {
+      <select [(ngModel)]="goalActiveFilter" aria-label="Filtrar metas activas">
+        <option value="ALL">Todas las metas</option>
+        <option value="true">Activas</option>
+        <option value="false">Inactivas</option>
+      </select>
+    } @else {
+      <select [(ngModel)]="auditResult" aria-label="Filtrar resultado">
+        <option value="ALL">Todos los resultados</option>
+        <option value="SUCCESS">Correctos</option>
+        <option value="FAILURE">Fallidos</option>
+      </select>
+    }
+    <button class="btn btn-primary" type="button" (click)="search()">Buscar</button>
+  </div>
+
+  @if (error()) {
+    <div class="resource-alert error" role="alert">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="resource-alert ok" role="status">{{ notice() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="empty">Cargando información…</div>
+  } @else if (section() === 'tasks') {
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">
+          Tareas asignadas
+        </caption>
+        <thead>
+          <tr>
+            <th>Tarea</th>
+            <th>Asignada a</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Vencimiento</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (task of tasks(); track task.publicId) {
+            <tr>
+              <td>
+                <strong>{{ task.title }}</strong
+                ><small>{{ task.description || 'Sin descripción' }}</small>
+              </td>
+              <td>{{ task.assignedToDisplayName }}</td>
+              <td>
+                <span class="priority" [class.high]="task.priority === 'HIGH'">{{
+                  taskPriorityLabel(task.priority)
+                }}</span>
+              </td>
+              <td>
+                <span class="status" [class.off]="task.status === 'CANCELLED'">{{
+                  taskStatusLabel(task.status)
+                }}</span>
+              </td>
+              <td>{{ task.dueAt ? (task.dueAt | date: 'dd/MM/yyyy HH:mm') : 'Sin fecha' }}</td>
+              <td class="row-actions">
+                <button type="button" (click)="openTask(task)">Editar</button>
+                @if (task.status === 'OPEN') {
+                  <button type="button" (click)="changeTaskStatus(task, 'IN_PROGRESS')">
+                    Iniciar
+                  </button>
+                }
+                @if (task.status === 'OPEN' || task.status === 'IN_PROGRESS') {
+                  <button type="button" (click)="changeTaskStatus(task, 'COMPLETED')">
+                    Completar
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td class="empty" colspan="6">No hay tareas para mostrar.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (section() === 'goals') {
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">
+          Metas por trabajador
+        </caption>
+        <thead>
+          <tr>
+            <th>Meta</th>
+            <th>Trabajador</th>
+            <th>Periodo</th>
+            <th>Avance</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (goal of goals(); track goal.publicId) {
+            <tr>
+              <td>
+                <strong>{{ goalTypeLabel(goal.goalType) }}</strong
+                ><small>Objetivo: {{ goal.targetValue | number: '1.0-2' }}</small>
+              </td>
+              <td>{{ goal.workerDisplayName }}</td>
+              <td>
+                {{ goal.periodStart | date: 'dd/MM/yyyy' }} –
+                {{ goal.periodEnd | date: 'dd/MM/yyyy' }}
+              </td>
+              <td>
+                <div class="progress-line">
+                  <span [style.width.%]="percent(goal.progressPercent)"></span>
+                </div>
+                <small
+                  >{{ goal.currentValue | number: '1.0-2' }} /
+                  {{ goal.targetValue | number: '1.0-2' }} ({{
+                    goal.progressPercent | number: '1.0-2'
+                  }}%)</small
+                >
+              </td>
+              <td>
+                <span class="status" [class.off]="!goal.active">{{
+                  goal.active ? 'Activa' : 'Inactiva'
+                }}</span>
+              </td>
+              <td class="row-actions">
+                @if (isAdmin()) {
+                  <button type="button" (click)="openGoal(goal)">Editar</button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td class="empty" colspan="6">No hay metas para mostrar.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">
+          Eventos de auditoría
+        </caption>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Actor</th>
+            <th>Acción</th>
+            <th>Entidad</th>
+            <th>Resultado</th>
+            <th>Resumen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (event of auditEvents(); track event.eventId) {
+            <tr>
+              <td>{{ event.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>
+                {{ event.actorDisplayName || 'Sistema'
+                }}<small>{{ event.roleSnapshot || 'Sin rol' }}</small>
+              </td>
+              <td>
+                <strong>{{ event.action }}</strong>
+              </td>
+              <td>
+                {{ event.entityType || '—' }}<small>{{ event.entityId || '' }}</small>
+              </td>
+              <td>
+                <span class="status" [class.off]="event.result === 'FAILURE'">{{
+                  event.result === 'SUCCESS' ? 'Correcto' : 'Fallido'
+                }}</span>
+              </td>
+              <td>{{ event.summary || '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td class="empty" colspan="6">No hay eventos para mostrar.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <div class="pagination" aria-label="Paginación">
+    <button type="button" (click)="previousPage()" [disabled]="page() === 0">Anterior</button
+    ><span>Página {{ page() + 1 }} de {{ totalPages() || 1 }} · {{ totalItems() }} registros</span
+    ><button type="button" (click)="nextPage()" [disabled]="page() + 1 >= totalPages()">
+      Siguiente
+    </button>
+  </div>
+}
+
+@if (formOpen() && section() === 'goals') {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <section
+      class="resource-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="goal-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <h2 id="goal-dialog-title">{{ editingGoal() ? 'Editar meta' : 'Nueva meta' }}</h2>
+        <button type="button" aria-label="Cerrar" (click)="closeForm()">×</button>
+      </div>
+      <form [formGroup]="goalForm" (ngSubmit)="submitGoal()">
+        <div class="resource-grid">
+          <label
+            >Trabajador
+            <select formControlName="workerId">
+              @for (assignee of assignees(); track assignee.id) {
+                <option [ngValue]="assignee.id">
+                  {{ assignee.displayName }} · {{ assignee.roleCode }}
+                </option>
+              }
+            </select></label
+          ><label
+            >Tipo
+            <select formControlName="goalType">
+              <option value="QUOTATIONS_ISSUED">Cotizaciones emitidas</option>
+              <option value="QUOTATION_AMOUNT">Importe cotizado</option>
+              <option value="TENDERS_FOLLOWED">Licitaciones seguidas</option>
+              <option value="TASKS_COMPLETED">Tareas completadas</option>
+            </select></label
+          ><label>Inicio <input type="date" formControlName="periodStart" /></label
+          ><label>Fin <input type="date" formControlName="periodEnd" /></label
+          ><label
+            >Objetivo
+            <input type="number" min="0.0001" step="0.01" formControlName="targetValue" /></label
+          ><label class="check"
+            ><input type="checkbox" formControlName="active" /> Meta activa</label
+          ><label class="full-field">Notas <textarea formControlName="notes"></textarea></label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost-dark" type="button" (click)="closeForm()">Cancelar</button
+          ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : 'Guardar meta' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+@if (formOpen() && section() === 'tasks') {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <section
+      class="resource-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <h2 id="task-dialog-title">{{ editingTask() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+        <button type="button" aria-label="Cerrar" (click)="closeForm()">×</button>
+      </div>
+      <form [formGroup]="taskForm" (ngSubmit)="submitTask()">
+        <div class="resource-grid">
+          <label class="full-field">Título <input formControlName="title" /></label
+          ><label class="full-field"
+            >Descripción <textarea formControlName="description"></textarea></label
+          ><label
+            >Prioridad
+            <select formControlName="priority">
+              <option value="LOW">Baja</option>
+              <option value="MEDIUM">Media</option>
+              <option value="HIGH">Alta</option>
+            </select></label
+          ><label>Vencimiento <input type="datetime-local" formControlName="dueAt" /></label>
+          @if (isAdmin()) {
+            <label
+              >Asignar a
+              <select formControlName="assignedToWorkerId">
+                @for (assignee of assignees(); track assignee.id) {
+                  <option [ngValue]="assignee.id">
+                    {{ assignee.displayName }} · {{ assignee.roleCode }}
+                  </option>
+                }
+              </select></label
+            >
+          } @else {
+            <div class="assignment-note">
+              <strong>Asignación</strong><span>La tarea quedará vinculada a tu usuario.</span>
+            </div>
+          }
+          <label
+            >Tipo relacionado
+            <input formControlName="relatedEntityType" placeholder="FACTURA, CLIENTE…" /></label
+          ><label>Referencia <input formControlName="relatedEntityId" /></label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost-dark" type="button" (click)="closeForm()">Cancelar</button
+          ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : 'Guardar tarea' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

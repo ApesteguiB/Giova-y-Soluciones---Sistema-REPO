@@ -1,0 +1,13 @@
+.git
+.angular
+**/node_modules
+**/.angular
+frontend/dist
+backend/target
+graphify-out
+docs/evidencia
+*.log
+.env
+backups
+storage
+**/storage

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo · Soluciones Informática TI</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root{
+  --bg:#0e1a2b;--bg-2:#101f36;--panel:#15253f;--panel-2:#1b2f4e;
+  --line:rgba(148,178,214,.14);--line-strong:rgba(148,178,214,.28);
+  --ink:#eef3fb;--muted:#9db2cf;--dim:#6f86a6;
+  --orange:#f97316;--orange-soft:#fb9d4b;--cyan:#38bdf8;--glow:rgba(249,115,22,.22);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);line-height:1.6;overflow-x:hidden;
+  background:radial-gradient(900px 500px at 50% -5%,rgba(249,115,22,.1),transparent 60%),linear-gradient(180deg,#0e1a2b,#0c1626)}
+a{text-decoration:none;color:inherit}
+h1,h2,h3,.bw{font-family:'Sora',sans-serif;letter-spacing:-.02em}
+.wrap{max-width:1300px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+nav{position:fixed;inset:0 0 auto 0;z-index:900;padding:16px 0;transition:.35s}
+nav.scrolled{padding:10px 0;background:rgba(12,22,38,.84);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav-row{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{height:38px;filter:drop-shadow(0 6px 16px var(--glow))}
+.logo-img{height:42px;width:auto;display:block;filter:drop-shadow(0 6px 16px var(--glow))}
+.bw{font-weight:800;font-size:1.02rem;line-height:1.05}
+.bw small{display:block;font-family:'Inter';font-weight:600;font-size:.6rem;letter-spacing:.3em;color:var(--dim)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a.lnk{font-weight:600;font-size:.93rem;color:var(--muted);position:relative;padding:4px 0}
+.nav-links a.lnk.active,.nav-links a.lnk:hover{color:#fff}
+.nav-links a.lnk::after{content:"";position:absolute;left:0;bottom:-3px;height:2px;width:0;background:var(--orange);transition:.3s}
+.nav-links a.lnk.active::after,.nav-links a.lnk:hover::after{width:100%}
+.btn-intranet{background:linear-gradient(135deg,var(--orange),var(--orange-soft));color:#2a1402;padding:.66rem 1.3rem;border-radius:11px;font-weight:700;box-shadow:0 10px 24px var(--glow)}
+
+.hero{padding:140px 0 20px;text-align:center}
+.hero .eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--orange-soft);font-weight:700}
+.hero h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:800;margin:12px 0 10px}
+.hero h1 .hl{background:linear-gradient(120deg,var(--orange-soft),var(--orange) 60%,#ffb062);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:1.05rem}
+
+.toolbar{max-width:1300px;margin:34px auto 0;padding:0 clamp(18px,4vw,40px)}
+.search-box{max-width:620px;margin:0 auto 24px;position:relative}
+.search-box svg{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--dim)}
+.search-box input{width:100%;padding:16px 22px 16px 52px;border-radius:14px;background:var(--panel);
+  border:1px solid var(--line-strong);color:var(--ink);font:inherit;outline:none;transition:.25s}
+.search-box input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(249,115,22,.14)}
+.filters{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.filter-btn{background:var(--panel);border:1px solid var(--line-strong);color:var(--muted);
+  padding:10px 20px;border-radius:999px;cursor:pointer;font:inherit;font-weight:600;font-size:.9rem;transition:.3s}
+.filter-btn:hover{color:#fff;border-color:var(--orange)}
+.filter-btn.active{background:linear-gradient(135deg,var(--orange),var(--orange-soft));color:#2a1402;border-color:transparent;box-shadow:0 8px 20px var(--glow)}
+.count{text-align:center;color:var(--dim);font-size:.85rem;margin:18px 0 8px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;
+  max-width:1300px;margin:0 auto;padding:12px clamp(18px,4vw,40px) 90px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);
+  border-radius:20px;overflow:hidden;transition:.4s cubic-bezier(.3,1.1,.5,1);display:flex;flex-direction:column}
+.card:hover{transform:translateY(-10px);border-color:var(--line-strong);box-shadow:0 22px 50px rgba(5,12,24,.5)}
+.card-img{height:200px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:.5s}
+.card-img.ph{background:#eef1f6}
+.card-img.ph::after{content:"Imagen del producto";position:absolute;inset:0;display:grid;place-items:center;color:#9aa6b4;font-size:.8rem;font-weight:600;letter-spacing:.02em}
+.modal-pic.phm img{display:none}
+.modal-pic.phm::after{content:"Imagen del producto";color:#9aa6b4;font-size:.85rem;font-weight:600}
+.card:hover .card-img img{transform:scale(1.08)}
+.card-body{padding:22px;display:flex;flex-direction:column;flex:1}
+.card-cat{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--orange-soft);font-weight:700}
+.card-title{font-size:1.12rem;margin:9px 0;font-weight:700;line-height:1.25;min-height:2.7em}
+.card-desc{font-size:.86rem;color:var(--muted);margin-bottom:18px;flex:1}
+.btn-detail{width:100%;padding:12px;background:transparent;border:1.5px solid var(--orange);color:var(--orange-soft);
+  border-radius:11px;cursor:pointer;font:inherit;font-weight:700;transition:.3s}
+.btn-detail:hover{background:var(--orange);color:#2a1402}
+.empty{grid-column:1/-1;text-align:center;padding:90px 20px}
+.empty h2{color:var(--orange-soft)}.empty p{color:var(--dim)}
+
+/* modal (ficha técnica clara) */
+.modal{position:fixed;inset:0;background:rgba(6,12,22,.86);backdrop-filter:blur(10px);display:none;z-index:2000;padding:24px;overflow-y:auto}
+.modal.active{display:flex;align-items:flex-start;justify-content:center}
+.modal-box{background:#fbfcfe;width:100%;max-width:1150px;border-radius:22px;margin:auto;
+  border:1px solid rgba(249,115,22,.25);animation:in .35s ease;color:#2a3342;overflow:hidden}
+@keyframes in{from{transform:translateY(26px);opacity:0}to{transform:none;opacity:1}}
+.modal-info{padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;gap:26px}
+.modal-head{display:grid;grid-template-columns:340px 1fr;gap:32px;align-items:center;padding-bottom:22px;border-bottom:3px solid #eef1f6}
+.modal-pic{background:#fff;border:1px solid #e6eaf0;border-radius:16px;padding:22px;height:280px;display:flex;align-items:center;justify-content:center}
+.modal-pic img{max-width:100%;max-height:100%;object-fit:contain}
+.modal-cat{font-size:.82rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#f97316}
+.modal-title{font-size:1.9rem;font-weight:800;color:#141b26;margin-top:10px;line-height:1.25}
+.specs{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.spec{background:#fff;border:1.5px solid #e9edf3;border-radius:12px;padding:18px}
+.spec h4{color:#f97316;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;font-weight:800;
+  border-bottom:2px solid #f97316;padding-bottom:9px;margin-bottom:10px}
+.spec table{width:100%;border-collapse:collapse}
+.spec td{padding:8px 4px;border-bottom:1px solid #f1f3f7;font-size:.84rem;vertical-align:top}
+.spec tr:last-child td{border-bottom:0}
+.spec td:first-child{color:#5a6474;font-weight:700;width:42%}
+.spec td:last-child{color:#1c2430;font-weight:500}
+.modal-foot{text-align:center}
+.btn-quote{display:inline-block;padding:15px 34px;background:linear-gradient(135deg,#f97316,#fb9d4b);color:#2a1402;
+  border:0;border-radius:12px;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(249,115,22,.35);transition:.3s;text-decoration:none}
+.btn-quote:hover{transform:translateY(-3px)}
+.modal-close{position:sticky;top:14px;float:right;margin:14px 14px -40px auto;width:40px;height:40px;border-radius:50%;
+  background:#fff;border:1px solid #e6eaf0;color:#333;font-size:1.5rem;cursor:pointer;z-index:5;display:grid;place-items:center;transition:.3s}
+.modal-close:hover{color:#f97316;transform:rotate(90deg)}
+
+footer{border-top:1px solid var(--line);padding:40px 0 30px;background:rgba(10,18,30,.6)}
+.foot-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:.86rem}
+
+@media(max-width:860px){.nav-links .lnk{display:none}.modal-head{grid-template-columns:1fr}.modal-pic{max-width:260px;margin:0 auto}.specs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-row">
+    <a href="index.html" class="brand">
+      <img src="/soluciones/logo-dark.png" alt="Soluciones Informática TI" class="logo-img">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="lnk">Inicio</a>
+      <a href="catalogo.html" class="lnk active">Catálogo</a>
+      <a href="index.html#contacto" class="lnk">Contacto</a>
+      <a href="intranet.html" class="btn-intranet">Intranet</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Catálogo</span>
+    <h1>Equipamiento <span class="hl">profesional</span></h1>
+    <p>Hardware certificado para empresas e instituciones. Filtra por categoría o busca por modelo.</p>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="searchInput" type="text" placeholder="Buscar por modelo, componente o marca…">
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" data-filter="todos">Todos</button>
+    <button class="filter-btn" data-filter="PCs">PCs</button>
+    <button class="filter-btn" data-filter="Notebooks">Notebooks</button>
+    <button class="filter-btn" data-filter="Componentes">Componentes</button>
+    <button class="filter-btn" data-filter="Monitores">Monitores</button>
+    <button class="filter-btn" data-filter="Workstation">Workstation</button>
+  </div>
+  <p class="count" id="count"></p>
+</div>
+
+<main class="grid" id="mainGrid"></main>
+
+<div class="modal" id="prodModal">
+  <div class="modal-box">
+    <button class="modal-close" id="mClose" type="button" aria-label="Cerrar">×</button>
+    <div class="modal-info">
+      <div class="modal-head">
+        <div class="modal-pic" id="mImg"></div>
+        <div><span class="modal-cat" id="mCat"></span><h2 class="modal-title" id="mTitle"></h2></div>
+      </div>
+      <div class="specs" id="mSpecs"></div>
+      <div class="modal-foot"><a href="index.html#contacto" class="btn-quote">Solicitar cotización</a></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="brand"><img src="/soluciones/logo-dark.png" alt="Soluciones Informática TI" style="height:38px;width:auto"></div>
+    <p>© 2026 Soluciones Informática TI E.I.R.L. · Todos los derechos reservados</p>
+  </div>
+</footer>
+
+<script src="/soluciones/js/catalogo-datos.js" defer></script>
+<script src="/soluciones/js/catalogo.js" defer></script>
+</body>
+</html>

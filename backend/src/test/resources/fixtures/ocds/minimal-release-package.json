@@ -1,0 +1,20 @@
+{
+  "uri": "https://example.test/ocds/packages/minimal-2026-09-15.json",
+  "version": "1.1",
+  "publishedDate": "2026-09-15T15:00:00Z",
+  "publisher": {
+    "name": "Publicador de fixture"
+  },
+  "releases": [
+    {
+      "ocid": "ocds-PE-TEST-000001",
+      "id": "ocds-PE-TEST-000001-20260915",
+      "date": "2026-09-15T15:00:00Z",
+      "tag": ["tender"],
+      "initiationType": "tender",
+      "tender": {
+        "title": "Servicio de mantenimiento de fixture"
+      }
+    }
+  ]
+}

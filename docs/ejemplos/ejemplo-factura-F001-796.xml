@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+  <cbc:ID>F001-796</cbc:ID>
+  <cbc:IssueDate>2026-08-24</cbc:IssueDate>
+  <cbc:DocumentCurrencyCode>USD</cbc:DocumentCurrencyCode>
+  <cac:AccountingSupplierParty><cac:Party><cac:PartyIdentification><cbc:ID>20524947707</cbc:ID></cac:PartyIdentification>
+    <cac:PartyLegalEntity><cbc:RegistrationName>GIOVA REPRESENTACIONES S.A.C.</cbc:RegistrationName></cac:PartyLegalEntity></cac:Party></cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty><cac:Party><cac:PartyIdentification><cbc:ID>20297868790</cbc:ID></cac:PartyIdentification>
+    <cac:PartyLegalEntity><cbc:RegistrationName>UNIVERSIDAD SAN IGNACIO DE LOYOLA S.R.L.</cbc:RegistrationName></cac:PartyLegalEntity></cac:Party></cac:AccountingCustomerParty>
+  <cac:InvoiceLine><cbc:ID>1</cbc:ID><cbc:InvoicedQuantity unitCode="NIU">2.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="USD">312.29</cbc:LineExtensionAmount>
+    <cac:Item><cbc:Description>TONER XEROX VERSANT 80/180 6R01646 BLACK</cbc:Description>
+      <cac:SellersItemIdentification><cbc:ID>6R01646</cbc:ID></cac:SellersItemIdentification></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="USD">156.144067</cbc:PriceAmount></cac:Price></cac:InvoiceLine>
+  <cac:InvoiceLine><cbc:ID>2</cbc:ID><cbc:InvoicedQuantity unitCode="NIU">2.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="USD">378.81</cbc:LineExtensionAmount>
+    <cac:Item><cbc:Description>TONER XEROX VERSANT 80/180 6R01647 CYAN</cbc:Description>
+      <cac:SellersItemIdentification><cbc:ID>6R01647</cbc:ID></cac:SellersItemIdentification></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="USD">189.406779</cbc:PriceAmount></cac:Price></cac:InvoiceLine>
+  <cac:InvoiceLine><cbc:ID>3</cbc:ID><cbc:InvoicedQuantity unitCode="NIU">2.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="USD">378.81</cbc:LineExtensionAmount>
+    <cac:Item><cbc:Description>TONER XEROX VERSANT 80/180 6R01649 YELLOW</cbc:Description>
+      <cac:SellersItemIdentification><cbc:ID>6R01649</cbc:ID></cac:SellersItemIdentification></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="USD">189.406779</cbc:PriceAmount></cac:Price></cac:InvoiceLine>
+  <cac:InvoiceLine><cbc:ID>4</cbc:ID><cbc:InvoicedQuantity unitCode="NIU">2.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="USD">378.81</cbc:LineExtensionAmount>
+    <cac:Item><cbc:Description>TONER XEROX VERSANT 80/180 6R01648 MAGENTA</cbc:Description>
+      <cac:SellersItemIdentification><cbc:ID>6R01648</cbc:ID></cac:SellersItemIdentification></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="USD">189.406779</cbc:PriceAmount></cac:Price></cac:InvoiceLine>
+</Invoice>

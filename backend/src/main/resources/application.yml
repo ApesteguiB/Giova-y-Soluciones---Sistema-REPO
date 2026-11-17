@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: giova-backend
+  main:
+    banner-mode: off
+  servlet:
+    multipart:
+      # El límite real de los documentos lo aplica DocumentValidator
+      # (giova.documents.max-bytes). Estos valores solo evitan que Tomcat corte
+      # la subida antes de llegar a esa validación: el máximo de Spring por
+      # defecto es 1 MB y no alcanza para un PDF escaneado.
+      max-file-size: ${GIOVA_UPLOAD_MAX_FILE_SIZE:12MB}
+      max-request-size: ${GIOVA_UPLOAD_MAX_REQUEST_SIZE:14MB}
+
+giova:
+  catalog:
+    enabled: ${GIOVA_CATALOG_ENABLED:false}
+  site:
+    # Empresa que se muestra cuando el dominio de la petición no está dado de
+    # alta en tenant_hosts (por ejemplo al entrar por la IP del servidor).
+    default-tenant-code: ${GIOVA_SITE_DEFAULT_TENANT:GIOVA}
+    # Permite ?empresa=<codigo|slug> solo desde localhost, para demostrar las
+    # dos empresas sin configurar dominios. Apagarlo en producción.
+    allow-local-override: ${GIOVA_SITE_ALLOW_LOCAL_OVERRIDE:true}
+  datasource:
+    url: jdbc:mariadb://${GIOVA_DB_HOST:host.docker.internal}:${GIOVA_DB_PORT:3306}/${GIOVA_DB_NAME:giova_v1}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: ${GIOVA_DB_USER:giova_app}
+    password: ${GIOVA_DB_PASSWORD:}
+  flyway:
+    url: jdbc:mariadb://${GIOVA_DB_HOST:host.docker.internal}:${GIOVA_DB_PORT:3306}/${GIOVA_DB_NAME:giova_v1}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: ${GIOVA_FLYWAY_USER:${GIOVA_DB_USER:giova_migrator}}
+    password: ${GIOVA_FLYWAY_PASSWORD:${GIOVA_DB_PASSWORD:}}
+  documents:
+    root: ${GIOVA_DOCUMENTS_ROOT:storage/documents}
+    max-bytes: ${GIOVA_DOCUMENTS_MAX_BYTES:10485760}
+  oece:
+    enabled: ${GIOVA_OECE_ENABLED:false}
+    base-url: ${GIOVA_OECE_BASE_URL:https://contratacionesabiertas.oece.gob.pe/api/v1/releases}
+    sync-cron: "${GIOVA_OECE_SYNC_CRON:0 0 */6 * * *}"
+    connect-timeout-seconds: ${GIOVA_OECE_CONNECT_TIMEOUT_SECONDS:10}
+    read-timeout-seconds: ${GIOVA_OECE_READ_TIMEOUT_SECONDS:30}
+    page-size: ${GIOVA_OECE_PAGE_SIZE:50}
+    max-pages: ${GIOVA_OECE_MAX_PAGES:60}
+
+server:
+  shutdown: graceful

@@ -1,0 +1,223 @@
+<!-- ===== HERO ===== -->
+<section class="co-hero">
+  <div class="co-hero-glow" [appParallax]="0.1" aria-hidden="true"></div>
+  <div class="container co-hero-inner">
+    <span class="co-badge"><span class="dot"></span> {{ heroBadge() }}</span>
+    <h1>{{ site.brandName() }}</h1>
+    <p class="co-lead">{{ site.site().tagline }}</p>
+    <div class="co-hero-actions">
+      @if (site.site().catalogEnabled) {
+        <a routerLink="/productos" class="btn btn-primary">Ver catálogo</a>
+      }
+      <a
+        routerLink="/contacto"
+        [queryParams]="{ asunto: 'Cotización de productos' }"
+        fragment="formulario"
+        class="btn btn-ghost"
+        >Solicitar cotización</a
+      >
+      @if (site.whatsappLink(); as whatsapp) {
+        <a [href]="whatsapp" target="_blank" rel="noopener noreferrer" class="btn btn-wa"
+          >Escribir por WhatsApp</a
+        >
+      }
+    </div>
+    @if (chips().length) {
+      <ul class="co-chips">
+        @for (chip of chips(); track chip) {
+          <li>{{ chip }}</li>
+        }
+      </ul>
+    }
+  </div>
+</section>
+
+<!-- ===== SERVICIOS / CATEGORÍAS ===== -->
+<section id="servicios" class="bg-ice">
+  <div class="container">
+    <div class="section-head" appReveal style="text-align: center">
+      <span class="eyebrow" style="justify-content: center">Qué hacemos</span>
+      <h2 class="section-title">Servicios y líneas de trabajo</h2>
+      <p class="section-sub" style="margin: 0 auto">
+        Cada línea se atiende de principio a fin: diagnóstico, propuesta, instalación y soporte
+        posterior.
+      </p>
+    </div>
+    @if (categories().length) {
+      <div class="cards-grid">
+        @for (category of categories(); track category.slug) {
+          <a
+            class="cat-card"
+            appReveal
+            routerLink="/productos"
+            [queryParams]="{ cat: category.slug }"
+            style="text-decoration: none"
+          >
+            <div class="cat-icon">
+              <app-product-icon [iconKey]="category.iconKey" />
+            </div>
+            <h3>{{ category.name }}</h3>
+            <p class="co-cat-count">
+              {{ category.productCount }}
+              {{ category.productCount === 1 ? 'producto o servicio' : 'productos y servicios' }}
+            </p>
+            <span class="cat-link">Ver línea →</span>
+          </a>
+        }
+      </div>
+    } @else if (!loading()) {
+      <p class="co-empty">
+        El catálogo de esta empresa aún no tiene líneas publicadas. Se cargan desde el panel de
+        operaciones, en Catálogo.
+      </p>
+    }
+  </div>
+</section>
+
+<!-- ===== PRODUCTOS DESTACADOS ===== -->
+@if (site.site().catalogEnabled) {
+  <section id="productos">
+    <div class="container">
+      <div class="section-head" appReveal>
+        <span class="eyebrow">Equipamiento</span>
+        <h2 class="section-title">Lo que instalamos y suministramos</h2>
+      </div>
+      @if (loading()) {
+        <div class="skeleton-grid">
+          @for (item of [1, 2, 3, 4]; track item) {
+            <div class="skeleton"></div>
+          }
+        </div>
+      } @else if (failed()) {
+        <div class="state error">
+          <strong>No se pudo cargar el catálogo.</strong>
+          <p>Verifique que el servicio esté disponible e inténtelo nuevamente.</p>
+          <button class="btn btn-blue" type="button" (click)="load()">Reintentar</button>
+        </div>
+      } @else {
+        <div class="showcase">
+          @for (product of products(); track product.id) {
+            <a
+              class="show-card"
+              appReveal
+              routerLink="/productos"
+              [queryParams]="{ cat: product.category.slug }"
+            >
+              <div class="sc-img">
+                @if (product.badge) {
+                  <span class="sc-badge aqua">{{ product.badge }}</span>
+                }
+                @if (hasPhoto(product)) {
+                  <img
+                    class="prod-photo"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    loading="lazy"
+                    (error)="onImageError(product)"
+                  />
+                } @else {
+                  <app-product-icon [iconKey]="product.category.iconKey" />
+                }
+              </div>
+              <div class="sc-body">
+                <span class="sc-tag">{{ product.brand.name }}</span>
+                <h4>{{ product.name }}</h4>
+                <p>{{ product.description }}</p>
+                <span class="sc-cta">Consultar →</span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<!-- ===== CÓMO TRABAJAMOS ===== -->
+<section id="nosotros" class="co-process">
+  <div class="container">
+    <div class="section-head" appReveal>
+      <span class="eyebrow">Cómo trabajamos</span>
+      <h2 class="section-title">Un proceso corto y verificable</h2>
+    </div>
+    <ol class="co-steps">
+      @for (step of steps; track step.title; let index = $index) {
+        <li appReveal>
+          <span class="co-step-number">{{ index + 1 }}</span>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.detail }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- ===== MARCAS ===== -->
+@if (brands().length) {
+  <section class="bg-ice">
+    <div class="container">
+      <div class="section-head" appReveal style="text-align: center">
+        <span class="eyebrow" style="justify-content: center">Marcas</span>
+        <h2 class="section-title">Equipos de fabricantes con soporte en el país</h2>
+      </div>
+      <ul class="co-brands">
+        @for (brand of brands(); track brand.id) {
+          <li
+            class="co-brand"
+            appReveal
+            [style.border-color]="brand.displayColor ?? 'var(--ice-200)'"
+          >
+            <span
+              class="co-brand-dot"
+              [style.background]="brand.displayColor ?? 'var(--teal-500)'"
+            ></span>
+            {{ brand.name }}
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+}
+
+<!-- ===== CIERRE ===== -->
+<section class="co-cta">
+  <div class="container co-cta-inner" appReveal>
+    <div>
+      <h2>¿Necesita una propuesta para su institución?</h2>
+      <p>
+        Envíe el requerimiento y recibirá la cotización con especificaciones, plazos y garantías por
+        escrito.
+      </p>
+    </div>
+    <div class="co-cta-actions">
+      <a
+        routerLink="/contacto"
+        [queryParams]="{ asunto: 'Cotización de productos' }"
+        fragment="formulario"
+        class="btn btn-primary"
+        >Pedir cotización</a
+      >
+      @if (site.whatsappLink(); as whatsapp) {
+        <a [href]="whatsapp" target="_blank" rel="noopener noreferrer" class="btn btn-ghost"
+          >WhatsApp</a
+        >
+      }
+    </div>
+  </div>
+  @if (hasContactData()) {
+    <div class="container co-contact">
+      @if (site.site().phone) {
+        <span><b>Teléfono</b>{{ site.site().phone }}</span>
+      }
+      @if (site.site().email) {
+        <span><b>Correo</b>{{ site.site().email }}</span>
+      }
+      @if (site.site().address) {
+        <span><b>Dirección</b>{{ site.site().address }}</span>
+      }
+      @if (site.site().hours) {
+        <span><b>Horario</b>{{ site.site().hours }}</span>
+      }
+    </div>
+  }
+</section>

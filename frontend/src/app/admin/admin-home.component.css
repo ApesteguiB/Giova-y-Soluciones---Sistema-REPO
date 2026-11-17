@@ -1,0 +1,56 @@
+.admin-page-head h1 {
+  color: var(--navy-800);
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin: 8px 0;
+}
+.admin-page-head p {
+  color: var(--ink-600);
+}
+.admin-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 30px;
+}
+.admin-menu-card {
+  background: #fff;
+  border: 1px solid var(--ice-200);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 10px;
+}
+.admin-menu-card strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--navy-800);
+}
+.admin-menu-card span {
+  color: var(--ink-600);
+}
+.admin-menu-card b {
+  color: var(--teal-500);
+}
+.admin-role-notice {
+  max-width: 640px;
+  margin-top: 30px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--ice-200);
+  border-left: 4px solid var(--teal-500);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.admin-role-notice strong {
+  color: var(--navy-800);
+}
+.admin-role-notice p {
+  color: var(--ink-600);
+  margin: 8px 0 0;
+}
+@media (max-width: 800px) {
+  .admin-menu-grid {
+    grid-template-columns: 1fr;
+  }
+}

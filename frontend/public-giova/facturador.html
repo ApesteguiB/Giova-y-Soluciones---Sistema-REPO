@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facturación · GIOVA Representaciones</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root{
+  --bg:#f3f5f8;--surface:#ffffff;--line:#e4e8ee;--line-2:#eef1f5;
+  --ink:#1b2532;--muted:#596574;--dim:#8a97a6;
+  --brand:#0e7c7b;--brand-2:#14a3a8;--brand-soft:#e6f5f5;
+  --green:#0f9d6b;--green-soft:#e6f6ef;--blue:#2563eb;--blue-soft:#e8effe;--red:#dc2626;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1300px;margin:0 auto;padding:0 clamp(16px,3vw,30px)}
+button{font-family:inherit}
+
+.bar{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:38px;width:auto}
+.brand .bt{font-weight:800;font-size:15px;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+.brand .bt small{display:block;font-weight:600;font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.bar-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:9px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.15s;padding:9px 15px;font-size:13.5px}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-2)}
+.btn-light{background:var(--surface);border-color:var(--line);color:var(--ink)}.btn-light:hover{border-color:var(--dim);background:#fafbfc}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+
+.page{padding:26px 0 60px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.head h1{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.head p{color:var(--muted);margin-top:3px;font-size:13.5px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);font-weight:700}
+.stat b{font-size:22px;font-weight:800;display:block;margin-top:5px;letter-spacing:-.01em}
+.stat.v b{color:var(--green)}.stat.c b{color:var(--blue)}.stat.n b{color:var(--brand)}
+
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:16px}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13px;padding:7px 13px;border-radius:7px;cursor:pointer;transition:.15s}
+.seg button.active{background:var(--surface);color:var(--brand);box-shadow:0 1px 3px rgba(20,30,45,.12)}
+.search{position:relative;flex:1;min-width:220px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim)}
+.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);outline:none}
+.search input:focus{border-color:var(--brand)}
+.date{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
+.date input{padding:8px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--surface)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.scrollx{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:820px}
+thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);font-weight:700;padding:12px 16px;border-bottom:1px solid var(--line);background:#fbfcfd;white-space:nowrap}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--line-2);font-size:13.5px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fbfcfd}
+.doc b{font-weight:700}.doc small{display:block;color:var(--dim);font-size:11.5px}
+.tag{display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px}
+.tag.v{background:var(--green-soft);color:#0b7a53}.tag.c{background:var(--blue-soft);color:#1d4ed8}
+.cmp{font-size:11.5px;font-weight:600;color:var(--muted)}
+.who b{font-weight:600}.who small{display:block;color:var(--dim);font-size:11.5px}
+.money{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.venc .bad{color:var(--red);font-weight:700}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+.ico{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);cursor:pointer;transition:.15s}
+.ico:hover{border-color:var(--brand);color:var(--brand)}.ico.danger:hover{border-color:var(--red);color:var(--red)}
+.ico svg{width:15px;height:15px}
+.foot{padding:11px 16px;color:var(--dim);font-size:12.5px;border-top:1px solid var(--line-2)}
+.empty{padding:60px 20px;text-align:center;color:var(--dim)}
+
+.modal{position:fixed;inset:0;background:rgba(20,30,45,.46);display:none;z-index:100;padding:22px;overflow-y:auto}
+.modal.open{display:flex;align-items:flex-start;justify-content:center}
+.sheet{background:var(--surface);border-radius:16px;width:100%;max-width:760px;margin:auto;box-shadow:0 24px 60px rgba(15,23,35,.28);overflow:hidden}
+.sheet-h{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.sheet-h h2{font-size:17px;font-weight:800}
+.sheet-h .x{width:32px;height:32px;border:0;background:var(--bg);border-radius:8px;cursor:pointer;color:var(--muted);font-size:18px}
+.sheet-b{padding:20px 24px}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.tg{display:flex;gap:8px}
+.tg label{flex:1;display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer;font-weight:600;font-size:13px;transition:.15s}
+.tg input{display:none}
+.tg .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto}
+.tg label.sel{border-color:var(--brand);background:var(--brand-soft)}
+.tg label.sel .dot{border-color:var(--brand);background:var(--brand);box-shadow:inset 0 0 0 2px #fff}
+.tg-lbl{display:block;font-size:11.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 14px}
+.fld label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.fld input,.fld select,.fld textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);outline:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--brand)}
+.fld textarea{resize:vertical;min-height:54px}
+.col-2{grid-column:span 2}.col-3{grid-column:1/-1}
+.hint{font-size:11.5px;color:var(--dim);margin-top:4px}
+.items{margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ih,.ir{display:grid;grid-template-columns:1fr 70px 100px 100px 30px;gap:8px;align-items:center;padding:9px 12px}
+.ih{background:#fbfcfd;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim);font-weight:700;border-bottom:1px solid var(--line)}
+.ir{border-bottom:1px solid var(--line-2)}.ir:last-child{border-bottom:0}
+.ir input{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:13px}
+.ir input:focus{border-color:var(--brand);outline:none}
+.ir .rm{border:0;background:transparent;color:var(--red);cursor:pointer;font-size:16px}
+.add{display:block;width:calc(100% - 20px);margin:10px;padding:9px;border:1px dashed var(--line);border-radius:8px;background:transparent;color:var(--brand);font-weight:600;cursor:pointer}
+.tot{display:flex;justify-content:flex-end;gap:24px;margin-top:14px;align-items:baseline;flex-wrap:wrap}
+.tot .t{color:var(--muted);font-size:13px}.tot .t b{color:var(--ink);font-weight:700;margin-left:6px}
+.tot .grand{font-size:17px;font-weight:800}.tot .grand b{color:var(--brand)}
+.sheet-f{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+.inv{background:#fff;color:#1c2430;max-width:760px;margin:auto;border-radius:12px;overflow:hidden}
+.inv-h{display:flex;justify-content:space-between;align-items:flex-start;padding:26px 30px;border-bottom:1px solid #eef1f5}
+.inv-co b{font-size:16px;font-weight:800}.inv-co span{display:block;font-size:12.5px;color:#6b7684}
+.inv-doc{border:2px solid var(--brand);border-radius:10px;padding:10px 18px;text-align:center;min-width:170px}
+.inv-doc .l{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--brand);text-transform:uppercase}
+.inv-doc .n{font-size:16px;font-weight:800}
+.inv-doc .ruc{font-size:11px;color:#6b7684;margin-top:3px}
+.inv-m{display:grid;grid-template-columns:1fr 1fr;gap:5px 20px;padding:18px 30px;font-size:13px;color:#46515f}
+.inv-m b{color:#1c2430}
+.inv-wrap{padding:0 30px 10px}
+.inv table{width:100%;border-collapse:collapse;min-width:0}
+.inv th{background:#f7f9fb;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7684;padding:9px 10px}
+.inv td{padding:9px 10px;border-bottom:1px solid #eef1f5;font-size:13px}
+.inv .r{text-align:right}
+.inv-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:0 30px 26px}
+.inv-obs{font-size:12px;color:#6b7684;max-width:320px}
+.inv-obs b{color:#1c2430;display:block;margin-bottom:3px}
+.inv-t{width:270px;font-size:13.5px}
+.inv-t div{display:flex;justify-content:space-between;padding:4px 0}
+.inv-t .g{border-top:2px solid #1c2430;margin-top:6px;padding-top:9px;font-weight:800;font-size:16px}
+@media print{body{background:#fff}body *{visibility:hidden}#invView,#invView *{visibility:visible}#invView{position:absolute;inset:0;margin:0}.sheet-h,.sheet-f{display:none!important}}
+@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.toggles{grid-template-columns:1fr}.col-2{grid-column:span 2}.ih,.ir{grid-template-columns:1fr 50px 80px 80px 26px}.inv-foot{flex-direction:column;align-items:stretch}.inv-t{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="wrap">
+  <a href="/" class="brand"><img src="/giova/logo.png" alt="GIOVA Representaciones" data-ocultar-si-falla><span class="bt">Facturación<small>GIOVA REPRESENTACIONES</small></span></a>
+  <div class="bar-actions">
+    <a href="/" class="btn btn-light btn-sm">Ir al sistema</a>
+    <button class="btn btn-primary" id="newBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Nuevo comprobante</button>
+  </div>
+</div></div>
+
+<div class="page"><div class="wrap">
+  <div class="head">
+    <div><h1>Comprobantes</h1><p>Registra, busca y exporta facturas y boletas de compra y venta.</p></div>
+    <button class="btn btn-light" id="expAll"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Exportar XML (filtro)</button>
+  </div>
+  <div class="stats">
+    <div class="stat v"><div class="k">Ventas (filtro)</div><b id="stV">S/ 0.00</b></div>
+    <div class="stat c"><div class="k">Compras (filtro)</div><b id="stC">S/ 0.00</b></div>
+    <div class="stat n"><div class="k">Comprobantes</div><b id="stN">0</b></div>
+    <div class="stat"><div class="k">Última emisión</div><b id="stL">—</b></div>
+  </div>
+  <div class="tools">
+    <div class="seg" id="seg">
+      <button data-t="todos" class="active">Todos</button>
+      <button data-t="venta">Ventas</button>
+      <button data-t="compra">Compras</button>
+    </div>
+    <div class="seg" id="segDoc">
+      <button data-d="todos" class="active">Todos</button>
+      <button data-d="factura">Facturas</button>
+      <button data-d="boleta">Boletas</button>
+    </div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" placeholder="Buscar por N°, cliente, RUC o producto…"></div>
+    <div class="date">Desde <input type="date" id="from"></div>
+    <div class="date">Hasta <input type="date" id="to"></div>
+    <button class="btn btn-light btn-sm" id="clear">Limpiar</button>
+  </div>
+  <div class="card"><div class="scrollx">
+    <table>
+      <thead><tr><th>Documento</th><th>Operación</th><th>Contraparte</th><th>Emisión</th><th>Vence</th><th style="text-align:right">Total</th><th style="text-align:right">Acciones</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</div></div>
+
+<!-- form -->
+<div class="modal" id="formM"><div class="sheet">
+  <div class="sheet-h"><h2>Nuevo comprobante</h2><button class="x" data-act="closeForm">×</button></div>
+  <div class="sheet-b">
+    <div class="toggles">
+      <div><span class="tg-lbl">Comprobante</span><div class="tg" id="tgDoc">
+        <label data-v="factura" class="sel"><input type="radio" name="doc" value="factura" checked><span class="dot"></span>Factura</label>
+        <label data-v="boleta"><input type="radio" name="doc" value="boleta"><span class="dot"></span>Boleta</label>
+      </div></div>
+      <div><span class="tg-lbl">Operación</span><div class="tg" id="tgTipo">
+        <label data-v="venta" class="sel"><input type="radio" name="tipo" value="venta" checked><span class="dot"></span>Venta</label>
+        <label data-v="compra"><input type="radio" name="tipo" value="compra"><span class="dot"></span>Compra</label>
+      </div></div>
+    </div>
+    <div class="grid">
+      <div class="fld"><label>Serie</label><input id="fSerie" placeholder="F001" maxlength="6"></div>
+      <div class="fld"><label>Número</label><input id="fNum" placeholder="000123" maxlength="10"></div>
+      <div class="fld"><label>Moneda</label><select id="fMon"><option value="PEN">S/ Soles</option><option value="USD">$ Dólares</option></select></div>
+
+      <div class="fld col-3"><label id="lblParte">Cliente</label>
+        <input id="fNombre" list="clientesDL" placeholder="Escribe o elige…" autocomplete="off">
+        <datalist id="clientesDL"></datalist>
+        <div class="hint">Elige uno guardado o escribe uno nuevo: se guarda solo con su documento.</div>
+      </div>
+      <div class="fld"><label>Tipo de doc.</label><select id="fDocTipo"><option value="RUC">RUC</option><option value="DNI">DNI</option></select></div>
+      <div class="fld col-2"><label>N° de documento</label><input id="fRuc" placeholder="20xxxxxxxxx" maxlength="11"></div>
+
+      <div class="fld"><label>Fecha de emisión</label><input id="fFecha" type="date"></div>
+      <div class="fld"><label>Fecha de vencimiento</label><input id="fVenc" type="date"></div>
+      <div class="fld"><label>Condición de pago</label><select id="fCond"><option value="Contado">Contado</option><option value="Crédito">Crédito</option></select></div>
+    </div>
+    <div class="items">
+      <div class="ih"><span>Descripción</span><span>Cant.</span><span>P. unit.</span><span>Importe</span><span></span></div>
+      <div id="itemRows"></div>
+      <button class="add" id="addItem">+ Agregar línea</button>
+    </div>
+    <div class="fld" style="margin-top:14px"><label>Observaciones (opcional)</label><textarea id="fObs" placeholder="Orden de compra, guía, forma de pago, etc."></textarea></div>
+    <div class="tot">
+      <span class="t">Op. gravada <b id="fSub">0.00</b></span>
+      <span class="t">IGV 18% <b id="fIgv">0.00</b></span>
+      <span class="grand">Total <b id="fTot">0.00</b></span>
+    </div>
+  </div>
+  <div class="sheet-f"><button class="btn btn-light" data-act="closeForm">Cancelar</button><button class="btn btn-primary" id="saveBtn">Guardar comprobante</button></div>
+</div></div>
+
+<!-- preview -->
+<div class="modal" id="prevM"><div class="sheet" style="max-width:800px">
+  <div class="sheet-h"><h2>Vista previa</h2><button class="x" data-act="closePrev">×</button></div>
+  <div class="sheet-b" style="background:#f3f5f8"><div class="inv" id="invView"></div></div>
+  <div class="sheet-f"><button class="btn btn-light" id="prevXml">Descargar XML</button><button class="btn btn-primary" id="prevPdf"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Descargar PDF</button></div>
+</div></div>
+
+<script src="/giova/js/facturador.js"></script>
+</body>
+</html>

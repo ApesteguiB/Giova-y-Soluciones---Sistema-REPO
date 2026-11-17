@@ -1,0 +1,26 @@
+# Normaliza finales de linea para que el build de Docker (Linux) funcione
+# aunque el repositorio se clone en Windows.
+* text=auto eol=lf
+
+# Scripts de Windows: deben conservar CRLF.
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Wrapper de Maven: se ejecuta dentro de la imagen Linux.
+backend/mvnw text eol=lf
+
+# Binarios: sin normalizacion ni diff textual.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary

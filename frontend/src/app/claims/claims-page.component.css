@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+.claims-wrap {
+  padding-top: 48px;
+  padding-bottom: 90px;
+  max-width: 960px;
+}
+.claims-card {
+  margin: 0 auto;
+}
+.alert-ok small {
+  color: #157a52;
+  font-size: 0.8rem;
+}

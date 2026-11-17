@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.brand-tag {
+  color: var(--teal-500);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.empty-state .btn {
+  margin-top: 18px;
+}

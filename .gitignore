@@ -1,0 +1,129 @@
+# ============================================================
+# GIOVA V1 — .gitignore
+# Mantiene fuera del repositorio secretos, datos locales, datos
+# de clientes y artefactos de compilacion. Espeja la lista blanca
+# de scripts/package-delivery.ps1.
+# ============================================================
+
+# ---------- Secretos y configuracion local ----------
+.env
+.env.*
+!.env.example
+*.local
+*.local.*
+**/*.local.*
+secrets.*
+*secret*.json
+*credentials*.json
+.netrc
+.npmrc
+.htpasswd
+
+# Claves, certificados y almacenes de confianza
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.asc
+*.gpg
+id_rsa*
+id_ed25519*
+known_hosts
+
+# Sobrescrituras locales de Spring y Compose
+backend/src/main/resources/application-local.*
+backend/src/main/resources/application-*.local.*
+compose.override.yaml
+compose.override.yml
+docker-compose.override.yml
+
+# ---------- Datos reales, respaldos y documentos privados ----------
+# Los respaldos SQL contienen datos de clientes y hashes de contrasena.
+backups/
+*.dump
+*.mysqldump
+*.bak
+dump.sql
+*-backup.sql
+# Fixture local con una cuenta de revision y su hash bcrypt.
+database/
+scripts/seed-review-admin.ps1
+# PDF/XML subidos por los trabajadores; nunca se versionan.
+storage/
+**/storage/documents/
+
+# ---------- Dependencias y artefactos de compilacion ----------
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# ---------- Evidencia local, herramientas y paquetes ----------
+output/
+graphify-out/
+docs/evidencia/
+.playwright-cli/
+playwright-report/
+test-results/
+*.zip
+*.zip.sha256
+*.7z
+*.tar
+*.tar.gz
+p30-semgrep.json
+*semgrep*.json
+*.log
+logs/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- Documentacion interna de planificacion ----------
+# Se excluye igual que en el paquete de entrega: contiene rutas
+# locales, estado de fases y notas operativas internas.
+AGENTS.md
+CLAUDE.md
+.claude/
+docs/PLAN_PROYECTO.md
+docs/ESTADO_TRABAJO.md
+docs/GRAFOS.md
+docs/INVENTARIO_ORIGEN.md
+docs/REFERENCIA_VISUAL.md
+docs/referencia/origen-manifest.json
+docs/referencia/verificacion-plan.json
+
+# ---------- IDE y sistema operativo ----------
+.idea/
+.vscode/
+!.vscode/extensions.json
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Cliente Flutter Android: repositorio Git propio (GIOVA-APP)
+/mobile/
+
+# Volcados de base de datos con datos reales (clientes y hashes de contraseña).
+# Las migraciones de backend/src/main/resources/db/migration sí se versionan.
+/reset-pass.sql
+/respaldo-*.sql
+/db/*.sql

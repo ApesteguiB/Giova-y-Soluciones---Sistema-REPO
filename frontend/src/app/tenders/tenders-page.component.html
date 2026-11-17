@@ -1,0 +1,390 @@
+<section class="resource-head tender-head">
+  <div>
+    <span class="eyebrow">Operaciones · Fuente pública</span>
+    <h1>Radar de licitaciones</h1>
+    <p>
+      Revisa oportunidades compatibles con los perfiles activos y decide el siguiente paso manual.
+    </p>
+  </div>
+  @if (canSync()) {
+    <button
+      class="btn btn-primary"
+      type="button"
+      [disabled]="syncing() || !sourceStatus()?.integrationEnabled"
+      (click)="startSync()"
+    >
+      {{ syncing() ? 'Sincronizando…' : 'Sincronizar ahora' }}
+    </button>
+  }
+</section>
+
+@if (sourceStatus(); as source) {
+  <section class="source-status" aria-labelledby="source-status-title">
+    <div class="source-status-main">
+      <div>
+        <span class="eyebrow">Estado de fuente</span>
+        <h2 id="source-status-title">{{ source.code }}</h2>
+      </div>
+      <span class="source-badge" [class.disabled]="!source.integrationEnabled">
+        {{ source.integrationEnabled ? 'Integración habilitada' : 'Integración deshabilitada' }}
+      </span>
+    </div>
+    <div class="source-status-meta">
+      <span [class.stale-text]="isStale()">{{ freshness() }}</span>
+      @if (source.lastSuccessfulAt) {
+        <span>Última actualización: {{ source.lastSuccessfulAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+      }
+      @if (source.lastRun) {
+        <span>
+          Última ejecución:
+          <strong [class.failed-text]="source.lastRun.status === 'FAILED'">
+            {{ syncStatusLabel(source.lastRun.status) }}
+          </strong>
+        </span>
+      }
+    </div>
+    @if (isStale()) {
+      <p class="source-warning" role="status">
+        Los resultados pueden estar desactualizados. Verifica siempre la oportunidad en la fuente
+        oficial.
+      </p>
+    }
+    @if (!source.integrationEnabled) {
+      <p class="source-note">
+        La sincronización está apagada por configuración; se conserva el histórico local sin
+        presentarlo como actual.
+      </p>
+    }
+    @if (source.lastRun?.status === 'FAILED') {
+      <p class="source-warning" role="alert">
+        La última sincronización falló. No se eliminaron las oportunidades almacenadas.
+        @if (source.lastRun?.errorMessage) {
+          <span>{{ source.lastRun?.errorMessage }}</span>
+        }
+      </p>
+    }
+  </section>
+}
+
+@if (syncRun(); as run) {
+  <section class="sync-run" role="status" aria-live="polite">
+    <strong>Ejecución {{ run.runId }}</strong>
+    <span [class]="'sync-status ' + syncStatusClass(run.status)">{{
+      syncStatusLabel(run.status)
+    }}</span>
+    <span
+      >{{ run.pages }} páginas · {{ run.releases }} releases · {{ run.matches }} coincidencias</span
+    >
+  </section>
+}
+
+<section class="tender-note">
+  <strong>Uso manual:</strong> este radar no presenta ofertas ni automatiza acciones en SEACE.
+  <span>Abre el enlace oficial para continuar la revisión directamente en la fuente.</span>
+</section>
+
+<div class="resource-toolbar tender-filters">
+  <label>
+    Buscar
+    <input [(ngModel)]="query" placeholder="Título, OCID o descripción" (keyup.enter)="search()" />
+  </label>
+  <label>
+    Estado
+    <select [(ngModel)]="stateFilter">
+      <option value="ALL">Todos</option>
+      <option value="NEW">Nuevas</option>
+      <option value="REVIEWING">En revisión</option>
+      <option value="FOLLOWING">En seguimiento</option>
+      <option value="DISMISSED">Descartadas</option>
+      <option value="CLOSED">Cerradas</option>
+    </select>
+  </label>
+  <label>
+    Comprador
+    <input [(ngModel)]="buyerFilter" placeholder="Entidad compradora" />
+  </label>
+  <label>
+    Región
+    <input [(ngModel)]="regionFilter" placeholder="Región" />
+  </label>
+  <label>
+    Cierre desde
+    <input type="date" [(ngModel)]="dateFrom" />
+  </label>
+  <label>
+    Cierre hasta
+    <input type="date" [(ngModel)]="dateTo" />
+  </label>
+  <label>
+    Score mínimo
+    <input type="number" min="0" max="100" [(ngModel)]="minScore" />
+  </label>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="button" (click)="search()">Buscar</button>
+    <button
+      class="btn btn-ghost-dark"
+      type="button"
+      (click)="
+        query = '';
+        stateFilter = 'ALL';
+        buyerFilter = '';
+        regionFilter = '';
+        dateFrom = '';
+        dateTo = '';
+        minScore = null;
+        search()
+      "
+    >
+      Limpiar
+    </button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="resource-alert error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="resource-alert ok" role="status">{{ notice() }}</div>
+}
+
+@if (loading()) {
+  <div class="empty">Cargando oportunidades…</div>
+} @else {
+  <div class="table-wrap tender-table-wrap">
+    <table>
+      <caption class="sr-only">
+        Oportunidades de licitación encontradas
+      </caption>
+      <thead>
+        <tr>
+          <th>Oportunidad</th>
+          <th>Entidad / región</th>
+          <th>Cierre</th>
+          <th>Score</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (match of matches(); track match.publicId) {
+          <tr>
+            <td class="tender-title-cell">
+              <button class="link-button" type="button" (click)="openDetail(match)">
+                {{ match.process.title }}
+              </button>
+              <small>{{ match.process.ocid }}</small>
+              <small>Perfil: {{ match.profileName }}</small>
+            </td>
+            <td>
+              <strong>{{ match.process.buyerName || 'Entidad no indicada' }}</strong>
+              <small>{{ match.process.region || 'Región no indicada' }}</small>
+            </td>
+            <td>
+              {{
+                match.process.tenderEnd
+                  ? (match.process.tenderEnd | date: 'dd/MM/yyyy')
+                  : 'No indicado'
+              }}
+              <small>{{ match.process.status || 'Estado de fuente no indicado' }}</small>
+            </td>
+            <td>
+              <span [class]="'score ' + scoreClass(match.score)">{{ match.score }}/100</span>
+            </td>
+            <td>
+              <span [class]="'status tender-status ' + tenderStateClass(match.state)">
+                {{ tenderStateLabel(match.state) }}
+              </span>
+            </td>
+            <td class="row-actions tender-actions">
+              <button type="button" (click)="openDetail(match)">Detalle</button>
+              @if (match.process.officialUrl) {
+                <a [href]="match.process.officialUrl" target="_blank" rel="noopener noreferrer"
+                  >Fuente oficial</a
+                >
+              }
+              @if (canAct() && actionTarget(match.state); as target) {
+                <button
+                  type="button"
+                  [disabled]="isBusy(match, target)"
+                  (click)="changeMatchState(match, target)"
+                >
+                  {{ isBusy(match, target) ? 'Guardando…' : actionLabel(match.state) }}
+                </button>
+              }
+              @if (canAct() && canDismiss(match.state)) {
+                <button
+                  type="button"
+                  [disabled]="busyAction() !== null"
+                  (click)="changeMatchState(match, 'DISMISSED')"
+                >
+                  Descartar
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td class="empty" colspan="6">No hay oportunidades que coincidan con los filtros.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" aria-label="Paginación de licitaciones">
+    <button type="button" (click)="previousPage()" [disabled]="page() === 0">Anterior</button>
+    <span
+      >Página {{ page() + 1 }} de {{ totalPages() || 1 }} · {{ totalItems() }} oportunidades</span
+    >
+    <button type="button" (click)="nextPage()" [disabled]="page() + 1 >= totalPages()">
+      Siguiente
+    </button>
+  </div>
+}
+
+@if (selectedMatch()) {
+  <div class="modal-backdrop" (click)="closeDetail()">
+    <section
+      class="resource-modal tender-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tender-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <h2 id="tender-dialog-title">Detalle de la oportunidad</h2>
+        <button type="button" aria-label="Cerrar detalle" (click)="closeDetail()">×</button>
+      </div>
+
+      @if (detailLoading()) {
+        <div class="empty">Cargando detalle…</div>
+      } @else if (detail(); as item) {
+        <div class="detail-heading">
+          <span class="eyebrow">{{ item.process.ocid }}</span>
+          <h3>{{ item.process.title }}</h3>
+          <p>{{ item.process.description || 'La fuente no publicó una descripción.' }}</p>
+          @if (item.process.officialUrl) {
+            <a
+              class="official-link"
+              [href]="item.process.officialUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir fuente oficial
+            </a>
+          }
+        </div>
+
+        <div class="tender-detail-grid">
+          <div>
+            <span>Comprador</span><strong>{{ item.process.buyerName || 'No indicado' }}</strong>
+          </div>
+          <div>
+            <span>Región</span><strong>{{ item.process.region || 'No indicada' }}</strong>
+          </div>
+          <div>
+            <span>Estado publicado</span><strong>{{ item.process.status || 'No indicado' }}</strong>
+          </div>
+          <div>
+            <span>Monto</span
+            ><strong>{{
+              item.process.amount === null
+                ? 'No indicado'
+                : (item.process.amount | number: '1.2-2') + ' ' + (item.process.currencyCode || '')
+            }}</strong>
+          </div>
+          <div>
+            <span>Inicio</span
+            ><strong>{{
+              item.process.tenderStart
+                ? (item.process.tenderStart | date: 'dd/MM/yyyy HH:mm')
+                : 'No indicado'
+            }}</strong>
+          </div>
+          <div>
+            <span>Cierre</span
+            ><strong>{{
+              item.process.tenderEnd
+                ? (item.process.tenderEnd | date: 'dd/MM/yyyy HH:mm')
+                : 'No indicado'
+            }}</strong>
+          </div>
+        </div>
+
+        <section class="detail-section" aria-labelledby="match-title">
+          <div class="detail-section-head">
+            <h3 id="match-title">Coincidencias y razones</h3>
+            <span class="source-note">Score determinista, no probabilidad de adjudicación.</span>
+          </div>
+          @for (match of item.matches; track match.publicId) {
+            <article class="match-card">
+              <div class="match-card-head">
+                <div>
+                  <strong>{{ match.profileName }}</strong>
+                  <span [class]="'status tender-status ' + tenderStateClass(match.state)">{{
+                    tenderStateLabel(match.state)
+                  }}</span>
+                </div>
+                <span [class]="'score ' + scoreClass(match.score)">{{ match.score }}/100</span>
+              </div>
+              <ul>
+                @for (reason of match.reasons; track reason) {
+                  <li>{{ reason }}</li>
+                } @empty {
+                  <li>La fuente coincidió con el perfil sin razón detallada disponible.</li>
+                }
+              </ul>
+              <div class="row-actions">
+                @if (canAct() && actionTarget(match.state); as target) {
+                  <button
+                    type="button"
+                    [disabled]="isBusy(match, target)"
+                    (click)="changeMatchState(match, target)"
+                  >
+                    {{ isBusy(match, target) ? 'Guardando…' : actionLabel(match.state) }}
+                  </button>
+                }
+                @if (canAct() && canDismiss(match.state)) {
+                  <button
+                    type="button"
+                    [disabled]="busyAction() !== null"
+                    (click)="changeMatchState(match, 'DISMISSED')"
+                  >
+                    Descartar
+                  </button>
+                }
+              </div>
+            </article>
+          } @empty {
+            <p class="source-note">No hay perfiles coincidentes para esta oportunidad.</p>
+          }
+        </section>
+
+        <section class="detail-section" aria-labelledby="release-title">
+          <div class="detail-section-head">
+            <h3 id="release-title">Historial de releases</h3>
+            <span class="source-note">{{ item.releases.length }} registros conservados</span>
+          </div>
+          <div class="release-list">
+            @for (release of item.releases; track release.publicId) {
+              <div class="release-row">
+                <div>
+                  <strong>{{ release.releaseId }}</strong
+                  ><small>{{ release.releaseTag || 'Sin etiqueta' }}</small>
+                </div>
+                <span>{{ release.publishedDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                @if (release.sourceUrl) {
+                  <a [href]="release.sourceUrl" target="_blank" rel="noopener noreferrer"
+                    >Ver release</a
+                  >
+                }
+              </div>
+            } @empty {
+              <p class="source-note">No hay releases disponibles.</p>
+            }
+          </div>
+        </section>
+      }
+    </section>
+  </div>
+}

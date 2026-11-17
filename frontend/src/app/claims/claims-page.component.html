@@ -1,0 +1,110 @@
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" style="color: var(--cyan-400)">Atención al consumidor</span>
+    <h1>Libro de Reclamaciones</h1>
+    <p>
+      Registre su reclamo o queja. Su información se guardará de forma segura y recibirá una
+      referencia en pantalla.
+    </p>
+  </div>
+</section>
+
+<div class="container claims-wrap">
+  <div class="form-card claims-card">
+    <h2>Datos del consumidor</h2>
+    <p>Complete los campos obligatorios para registrar su solicitud.</p>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="hp-field" aria-hidden="true">
+        <label
+          >No llenar<input type="text" formControlName="website" tabindex="-1" autocomplete="off"
+        /></label>
+      </div>
+      <div class="form-grid">
+        <div class="field" [class.invalid]="invalid('name')">
+          <label for="claim-name">Nombre completo *</label
+          ><input id="claim-name" formControlName="name" maxlength="80" autocomplete="name" /><span
+            class="err"
+            >Ingrese su nombre.</span
+          >
+        </div>
+        <div class="field" [class.invalid]="invalid('documentNumber')">
+          <label for="claim-document">DNI / documento *</label
+          ><input id="claim-document" formControlName="documentNumber" maxlength="20" /><span
+            class="err"
+            >Ingrese su documento.</span
+          >
+        </div>
+        <div class="field" [class.invalid]="invalid('email')">
+          <label for="claim-email">Correo electrónico *</label
+          ><input
+            id="claim-email"
+            type="email"
+            formControlName="email"
+            maxlength="100"
+            autocomplete="email"
+          /><span class="err">Ingrese un correo válido.</span>
+        </div>
+        <div class="field">
+          <label for="claim-phone">Teléfono</label
+          ><input id="claim-phone" formControlName="phone" maxlength="20" autocomplete="tel" />
+        </div>
+        <div class="field full">
+          <label for="claim-address">Dirección</label
+          ><input
+            id="claim-address"
+            formControlName="address"
+            maxlength="120"
+            autocomplete="street-address"
+          />
+        </div>
+        <div class="field">
+          <label for="claim-kind">Tipo *</label
+          ><select id="claim-kind" formControlName="kind">
+            <option value="RECLAMO">Reclamo</option>
+            <option value="QUEJA">Queja</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="claim-good">Bien o servicio</label
+          ><input id="claim-good" formControlName="goodOrService" maxlength="100" />
+        </div>
+        <div class="field full" [class.invalid]="invalid('detail')">
+          <label for="claim-detail">Detalle del reclamo o queja *</label
+          ><textarea
+            id="claim-detail"
+            formControlName="detail"
+            maxlength="1500"
+            minlength="15"
+            placeholder="Describa lo sucedido (mínimo 15 caracteres)"
+          ></textarea
+          ><span class="err">Describa el caso con al menos 15 caracteres.</span>
+        </div>
+        <div class="field full">
+          <label for="claim-solution">Pedido o solución esperada</label
+          ><textarea
+            id="claim-solution"
+            formControlName="requestedSolution"
+            maxlength="800"
+          ></textarea>
+        </div>
+        <div class="alert alert-ok" [class.show]="!!successMessage()" role="status">
+          {{ successMessage() }}
+          @if (reference()) {
+            <br /><small>Referencia: {{ reference() }}</small>
+          }
+        </div>
+        <div class="alert alert-err" [class.show]="!!errorMessage()" role="alert">
+          {{ errorMessage() }}
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-blue" [disabled]="sending()">
+            {{ sending() ? 'Registrando...' : 'Registrar solicitud' }}
+          </button>
+        </div>
+        <p class="form-note">
+          * Campos obligatorios. Esta versión confirma el registro y la referencia en pantalla.
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

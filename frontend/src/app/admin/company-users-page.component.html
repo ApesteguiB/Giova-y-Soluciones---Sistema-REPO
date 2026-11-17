@@ -1,0 +1,148 @@
+<main class="company-users-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">ADMINISTRACIÓN · EMPRESA ACTIVA</p>
+      <h1>Usuarios de la empresa</h1>
+      <p class="intro">Cree y administre las cuentas de Contador y Vendedor de esta empresa.</p>
+    </div>
+    <button class="button button-primary" type="button" (click)="openCreate()">Nueva cuenta</button>
+  </header>
+
+  @if (error()) {
+    <div class="message message-error" role="alert">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="message message-success" role="status">{{ notice() }}</div>
+  }
+
+  @if (temporaryPassword(); as password) {
+    <section class="temporary-password" aria-labelledby="temporary-password-title">
+      <div>
+        <p class="eyebrow">MOSTRAR UNA SOLA VEZ</p>
+        <h2 id="temporary-password-title">Contraseña temporal</h2>
+        <p class="muted">{{ temporaryPasswordFor() }} · deberá cambiarla al ingresar.</p>
+        <code>{{ password }}</code>
+      </div>
+      <button type="button" class="button button-secondary" (click)="clearTemporaryPassword()">
+        Ocultar y borrar
+      </button>
+    </section>
+  }
+
+  @if (mode(); as currentMode) {
+    <section class="form-card" aria-labelledby="worker-form-title">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">{{ currentMode === 'create' ? 'ALTA' : 'EDICIÓN' }}</p>
+          <h2 id="worker-form-title">
+            {{ currentMode === 'create' ? 'Nueva subcuenta' : 'Editar nombre visible' }}
+          </h2>
+        </div>
+        <button type="button" class="button button-quiet" (click)="closeForm()">Cerrar</button>
+      </div>
+
+      @if (currentMode === 'create') {
+        <form [formGroup]="createForm" (ngSubmit)="create()" novalidate>
+          <div class="form-grid">
+            <label>
+              Usuario o correo
+              <input formControlName="username" autocomplete="off" maxlength="254" />
+              @if (createForm.controls.username.invalid && createForm.controls.username.touched) {
+                <small>Ingrese un usuario o correo válido.</small>
+              }
+            </label>
+            <label>
+              Nombre visible
+              <input formControlName="displayName" maxlength="100" />
+              @if (
+                createForm.controls.displayName.invalid && createForm.controls.displayName.touched
+              ) {
+                <small>Use entre 2 y 100 caracteres.</small>
+              }
+            </label>
+            <label>
+              Rol
+              <select formControlName="roleCode">
+                <option value="ACCOUNTANT">Contador</option>
+                <option value="SELLER">Vendedor</option>
+              </select>
+            </label>
+          </div>
+          <p class="form-note">
+            El sistema genera la contraseña temporal; no cree contraseñas manuales.
+          </p>
+          <div class="form-actions">
+            <button class="button button-quiet" type="button" (click)="closeForm()">
+              Cancelar
+            </button>
+            <button class="button button-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Creando…' : 'Crear cuenta' }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <form [formGroup]="editForm" (ngSubmit)="saveDisplayName()" novalidate>
+          <label>
+            Nombre visible
+            <input formControlName="displayName" maxlength="100" />
+            @if (editForm.controls.displayName.invalid && editForm.controls.displayName.touched) {
+              <small>Use entre 2 y 100 caracteres.</small>
+            }
+          </label>
+          <div class="form-actions">
+            <button class="button button-quiet" type="button" (click)="closeForm()">
+              Cancelar
+            </button>
+            <button class="button button-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Guardando…' : 'Guardar nombre' }}
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+
+  <section class="accounts-card" aria-labelledby="accounts-title">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">CUENTAS DE EMPRESA</p>
+        <h2 id="accounts-title">Contadores y vendedores</h2>
+      </div>
+      <span class="count">{{ workers().length }} cuentas</span>
+    </div>
+
+    @if (loading()) {
+      <p class="empty-state">Cargando cuentas…</p>
+    } @else if (workers().length === 0) {
+      <p class="empty-state">No hay subcuentas registradas en esta empresa.</p>
+    } @else {
+      <div class="worker-list">
+        @for (worker of workers(); track worker.workerId) {
+          <article class="worker-card">
+            <div class="worker-identity">
+              <strong>{{ worker.displayName }}</strong>
+              <span>{{ worker.username }}</span>
+              <div class="worker-meta">
+                <span class="role-pill">{{ roleLabel(worker.roleCode) }}</span>
+                <span class="status-pill" [class.inactive]="!worker.enabled">
+                  {{ worker.enabled ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+            </div>
+            <div class="worker-actions" aria-label="Acciones de cuenta">
+              <button type="button" (click)="openEdit(worker)" [disabled]="saving()">
+                Editar nombre
+              </button>
+              <button type="button" (click)="resetPassword(worker)" [disabled]="saving()">
+                Restablecer contraseña
+              </button>
+              <button type="button" (click)="toggleEnabled(worker)" [disabled]="saving()">
+                {{ worker.enabled ? 'Desactivar' : 'Activar' }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

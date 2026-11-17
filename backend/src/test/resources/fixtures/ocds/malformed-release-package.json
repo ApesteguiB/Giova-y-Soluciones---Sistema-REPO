@@ -1,0 +1,6 @@
+{
+  "uri": "https://example.test/ocds/packages/malformed.json",
+  "version": "1.1",
+  "publishedDate": "2026-09-15T15:00:00Z",
+  "publisher": { "name": "Publicador de fixture" },
+  "releases": [

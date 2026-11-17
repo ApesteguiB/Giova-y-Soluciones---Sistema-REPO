@@ -1,0 +1,600 @@
+{
+  "source": "giova/js/products-data.js",
+  "capturedAt": "2026-09-06",
+  "stats": {
+    "products": 52,
+    "services": 3,
+    "categories": 8,
+    "productBrands": [
+      "HP",
+      "Kyocera",
+      "Lenovo",
+      "Dell",
+      "EPSON",
+      "BROTHER",
+      "Cisco",
+      "Aruba",
+      "Giova"
+    ],
+    "orbitBrands": [
+      "HP",
+      "Kyocera",
+      "Epson",
+      "Canon",
+      "Brother",
+      "Dell",
+      "Lenovo",
+      "Cisco",
+      "Xerox",
+      "Lexmark",
+      "Kingston",
+      "Asus"
+    ],
+    "images": 8,
+    "counts": {
+      "toner-hp": 10,
+      "toner-kyocera": 10,
+      "equipos": 8,
+      "impresoras": 10,
+      "repuestos": 4,
+      "redes": 4,
+      "seguridad": 3,
+      "servicios": 3
+    },
+    "duplicateIds": [],
+    "duplicateSkus": []
+  },
+  "products": [
+    {
+      "id": "hp-cf258a",
+      "name": "Tóner HP 58A (CF258A) Negro",
+      "sku": "CF258A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "badge": "Más vendido",
+      "desc": "Para LaserJet Pro M404 / MFP M428. Rendimiento aprox. 3,000 páginas. Original HP."
+    },
+    {
+      "id": "hp-cf258x",
+      "name": "Tóner HP 58X (CF258X) Alto Rendimiento",
+      "sku": "CF258X",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro M404 / MFP M428. Rendimiento aprox. 10,000 páginas. Original HP."
+    },
+    {
+      "id": "hp-cf259a",
+      "name": "Tóner HP 59A (CF259A) Negro",
+      "sku": "CF259A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro M404 / M428. Rendimiento aprox. 3,000 páginas."
+    },
+    {
+      "id": "hp-cf259x",
+      "name": "Tóner HP 59X (CF259X) Alto Rendimiento",
+      "sku": "CF259X",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro M406 / MFP M430. Rendimiento aprox. 10,000 páginas."
+    },
+    {
+      "id": "hp-cf217a",
+      "name": "Tóner HP 17A (CF217A) Negro",
+      "sku": "CF217A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro M102 / MFP M130. Rendimiento aprox. 1,600 páginas."
+    },
+    {
+      "id": "hp-cf283a",
+      "name": "Tóner HP 83A (CF283A) Negro",
+      "sku": "CF283A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "badge": "Stock",
+      "desc": "Para LaserJet Pro MFP M125 / M127 / M225. Rendimiento aprox. 1,500 páginas."
+    },
+    {
+      "id": "hp-cf280a",
+      "name": "Tóner HP 80A (CF280A) Negro",
+      "sku": "CF280A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro 400 M401 / MFP M425. Rendimiento aprox. 2,700 páginas."
+    },
+    {
+      "id": "hp-ce285a",
+      "name": "Tóner HP 85A (CE285A) Negro",
+      "sku": "CE285A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet Pro P1102 / M1212. Rendimiento aprox. 1,600 páginas."
+    },
+    {
+      "id": "hp-w1105a",
+      "name": "Tóner HP 105A (W1105A) Negro",
+      "sku": "W1105A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet 107 / MFP 135 / 137. Rendimiento aprox. 1,000 páginas."
+    },
+    {
+      "id": "hp-cc364a",
+      "name": "Tóner HP 64A (CC364A) Negro",
+      "sku": "CC364A",
+      "cat": "toner-hp",
+      "brand": "HP",
+      "desc": "Para LaserJet P4014 / P4015 / P4515. Rendimiento aprox. 10,000 páginas."
+    },
+    {
+      "id": "ky-tk1175",
+      "name": "Tóner Kyocera TK-1175 Negro",
+      "sku": "TK-1175",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "badge": "Más vendido",
+      "desc": "Para ECOSYS M2040dn / M2540dn / M2640idw. Rendimiento aprox. 12,000 páginas."
+    },
+    {
+      "id": "ky-tk1147",
+      "name": "Tóner Kyocera TK-1147 Negro",
+      "sku": "TK-1147",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS M2035dn / M2535dn. Rendimiento aprox. 7,200 páginas."
+    },
+    {
+      "id": "ky-tk1160",
+      "name": "Tóner Kyocera TK-1160 Negro",
+      "sku": "TK-1160",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS P2040dn / P2040dw. Rendimiento aprox. 7,200 páginas."
+    },
+    {
+      "id": "ky-tk3402",
+      "name": "Tóner Kyocera TK-3402 Negro",
+      "sku": "TK-3402",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "badge": "Alto rend.",
+      "desc": "Para ECOSYS PA4500x / MA4500. Rendimiento aprox. 12,500 páginas."
+    },
+    {
+      "id": "ky-tk3182",
+      "name": "Tóner Kyocera TK-3182 Negro",
+      "sku": "TK-3182",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS P3055dn / P3060dn. Rendimiento aprox. 21,000 páginas."
+    },
+    {
+      "id": "ky-tk1248",
+      "name": "Tóner Kyocera TK-1248 Negro",
+      "sku": "TK-1248",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS PA2001 / MA2001. Rendimiento aprox. 1,500 páginas."
+    },
+    {
+      "id": "ky-tk5242k",
+      "name": "Tóner Kyocera TK-5242 Negro",
+      "sku": "TK-5242K",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS P5026 / M5526. Color negro. Rendimiento aprox. 4,000 páginas."
+    },
+    {
+      "id": "ky-tk5242c",
+      "name": "Tóner Kyocera TK-5242 Cian",
+      "sku": "TK-5242C",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "badge": "Color",
+      "desc": "Para ECOSYS P5026 / M5526. Color cian. Rendimiento aprox. 3,000 páginas."
+    },
+    {
+      "id": "ky-tk8345",
+      "name": "Tóner Kyocera TK-8345 Negro",
+      "sku": "TK-8345K",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para TASKalfa 2552ci / 2553ci. Rendimiento aprox. 20,000 páginas."
+    },
+    {
+      "id": "ky-tk6115",
+      "name": "Tóner Kyocera TK-6115 Negro",
+      "sku": "TK-6115",
+      "cat": "toner-kyocera",
+      "brand": "Kyocera",
+      "desc": "Para ECOSYS M4125idn / M4132idn. Rendimiento aprox. 15,000 páginas."
+    },
+    {
+      "id": "eq-thinkpad-e14",
+      "img": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80&auto=format&fit=crop",
+      "name": "Laptop Lenovo ThinkPad E14",
+      "sku": "E14-G5",
+      "cat": "equipos",
+      "brand": "Lenovo",
+      "badge": "Empresarial",
+      "desc": "Core i7 · 16 GB RAM · 512 GB SSD · pantalla 14\". Ideal para oficina."
+    },
+    {
+      "id": "eq-hp-probook",
+      "img": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80&auto=format&fit=crop",
+      "name": "Laptop HP ProBook 450 G10",
+      "sku": "450-G10",
+      "cat": "equipos",
+      "brand": "HP",
+      "desc": "Core i5 · 8 GB RAM · 256 GB SSD · pantalla 15.6\". Para uso corporativo."
+    },
+    {
+      "id": "eq-dell-latitude",
+      "name": "Laptop Dell Latitude 3540",
+      "sku": "LAT-3540",
+      "cat": "equipos",
+      "brand": "Dell",
+      "desc": "Core i5 · 16 GB RAM · 512 GB SSD · pantalla 15.6\". Robustez empresarial."
+    },
+    {
+      "id": "eq-hp-laserjet-mfp",
+      "name": "Multifuncional HP LaserJet M428fdw",
+      "sku": "M428FDW",
+      "cat": "equipos",
+      "brand": "HP",
+      "badge": "Top",
+      "desc": "Impresión, copia, escaneo y fax. Doble cara automático y Wi-Fi."
+    },
+    {
+      "id": "eq-ky-ecosys",
+      "name": "Multifuncional Kyocera ECOSYS M2040dn",
+      "sku": "M2040DN",
+      "cat": "equipos",
+      "brand": "Kyocera",
+      "desc": "Impresión, copia y escaneo monocromo. Hasta 40 ppm. Bajo costo por página."
+    },
+    {
+      "id": "eq-monitor-led",
+      "img": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&q=80&auto=format&fit=crop",
+      "name": "Monitor LED 24\" Full HD",
+      "sku": "MON-24FHD",
+      "cat": "equipos",
+      "brand": "HP",
+      "desc": "Panel IPS 24\", 1920×1080, HDMI/VGA. Ideal para puestos de trabajo."
+    },
+    {
+      "id": "eq-aio-lenovo",
+      "name": "All-in-One Lenovo V30a 24\"",
+      "sku": "V30A-24",
+      "cat": "equipos",
+      "brand": "Lenovo",
+      "desc": "Core i5 · 8 GB RAM · 512 GB SSD · pantalla 23.8\". Todo en uno."
+    },
+    {
+      "id": "eq-pantalla-int",
+      "name": "Pantalla interactiva 65\" 4K",
+      "sku": "PI-65-4K",
+      "cat": "equipos",
+      "brand": "Lenovo",
+      "badge": "Educación",
+      "desc": "Táctil 65\", 4K UHD, multitouch. Ideal para aulas y salas de reunión."
+    },
+    {
+      "id": "im-hp-m404dn",
+      "img": "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&q=80&auto=format&fit=crop",
+      "name": "Impresora HP LaserJet Pro M404dn",
+      "sku": "W1A53A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "badge": "Más vendida",
+      "desc": "Monocromática láser, 40 ppm, red Ethernet y dúplex automático. Para oficina."
+    },
+    {
+      "id": "im-hp-m428fdw",
+      "img": "https://images.unsplash.com/photo-1563770660941-20978e870e26?w=600&q=80&auto=format&fit=crop",
+      "name": "Multifuncional HP LaserJet Pro M428fdw",
+      "sku": "W1A30A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "badge": "Top",
+      "desc": "Imprime, copia, escanea y envía fax. Wi-Fi, dúplex y pantalla táctil."
+    },
+    {
+      "id": "im-hp-m454dw",
+      "name": "Impresora HP Color LaserJet Pro M454dw",
+      "sku": "W1Y45A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "badge": "Color",
+      "desc": "Láser a color, 28 ppm, Wi-Fi Direct y dúplex. Calidad profesional."
+    },
+    {
+      "id": "im-hp-9020",
+      "img": "https://images.unsplash.com/photo-1625961332771-3f40b0e2bdcf?w=600&q=80&auto=format&fit=crop",
+      "name": "Multifuncional HP OfficeJet Pro 9020",
+      "sku": "1MR78A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "desc": "Inyección de tinta a color, ADF, Wi-Fi y alta velocidad para oficina."
+    },
+    {
+      "id": "im-hp-580",
+      "name": "Impresora HP Smart Tank 580",
+      "sku": "1F3Y2A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "badge": "Tinta continua",
+      "desc": "Sistema de tinta continua, Wi-Fi, bajo costo por página. Hogar y oficina."
+    },
+    {
+      "id": "im-hp-m111w",
+      "name": "Impresora HP LaserJet M111w",
+      "sku": "7MD68A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "desc": "Láser monocromática compacta con Wi-Fi. Ideal para espacios reducidos."
+    },
+    {
+      "id": "im-hp-m236sdw",
+      "name": "Multifuncional HP LaserJet M236sdw",
+      "sku": "9YG09A",
+      "cat": "impresoras",
+      "brand": "HP",
+      "desc": "Imprime, copia y escanea. Dúplex automático y conexión inalámbrica."
+    },
+    {
+      "id": "im-ky-pa2001",
+      "name": "Impresora Kyocera ECOSYS PA2001w",
+      "sku": "PA2001W",
+      "cat": "impresoras",
+      "brand": "Kyocera",
+      "desc": "Láser monocromática Wi-Fi, compacta y de bajo consumo. Larga duración."
+    },
+    {
+      "id": "im-ep-l3250",
+      "name": "Multifuncional Epson EcoTank L3250",
+      "sku": "L3250",
+      "cat": "impresoras",
+      "brand": "EPSON",
+      "badge": "EcoTank",
+      "desc": "Tinta continua, Wi-Fi, imprime, copia y escanea a bajo costo por página."
+    },
+    {
+      "id": "im-br-l2540",
+      "name": "Multifuncional Brother DCP-L2540DW",
+      "sku": "L2540DW",
+      "cat": "impresoras",
+      "brand": "BROTHER",
+      "desc": "Láser monocromática, dúplex, Wi-Fi y alimentador automático de documentos."
+    },
+    {
+      "id": "rp-ssd-512",
+      "name": "Disco SSD 512 GB NVMe",
+      "sku": "SSD-512NVME",
+      "cat": "repuestos",
+      "brand": "Lenovo",
+      "desc": "Unidad de estado sólido M.2 NVMe. Lectura hasta 3,500 MB/s."
+    },
+    {
+      "id": "rp-ram-16",
+      "name": "Memoria RAM 16 GB DDR4",
+      "sku": "RAM-16DDR4",
+      "cat": "repuestos",
+      "brand": "Lenovo",
+      "desc": "Módulo DDR4 3200 MHz. Compatible con laptops y desktops empresariales."
+    },
+    {
+      "id": "rp-mb-h610",
+      "name": "Placa madre H610M",
+      "sku": "MB-H610M",
+      "cat": "repuestos",
+      "brand": "Dell",
+      "desc": "Socket LGA1700, soporte DDR4, HDMI/VGA. Para equipos de oficina."
+    },
+    {
+      "id": "rp-fusor-hp",
+      "name": "Kit de fusor HP LaserJet",
+      "sku": "FUSOR-HP",
+      "cat": "repuestos",
+      "brand": "HP",
+      "desc": "Repuesto original para impresoras LaserJet de la serie M400."
+    },
+    {
+      "id": "rd-switch-cisco",
+      "img": "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=600&q=80&auto=format&fit=crop",
+      "name": "Switch Cisco Catalyst 24 puertos",
+      "sku": "CAT-1000-24",
+      "cat": "redes",
+      "brand": "Cisco",
+      "badge": "Administrable",
+      "desc": "24 puertos Gigabit administrables. Calidad de servicio y VLAN."
+    },
+    {
+      "id": "rd-ap-aruba",
+      "name": "Access Point Aruba Instant On",
+      "sku": "AP-AIO22",
+      "cat": "redes",
+      "brand": "Aruba",
+      "desc": "Wi-Fi 6 doble banda. Cobertura empresarial y gestión en la nube."
+    },
+    {
+      "id": "rd-router-cisco",
+      "name": "Router empresarial Cisco",
+      "sku": "RTR-CISCO-RV",
+      "cat": "redes",
+      "brand": "Cisco",
+      "desc": "Router VPN para pymes. Firewall integrado y alta disponibilidad."
+    },
+    {
+      "id": "rd-firewall",
+      "name": "Firewall de seguridad perimetral",
+      "sku": "FW-PERIM",
+      "cat": "redes",
+      "brand": "Cisco",
+      "badge": "Seguridad",
+      "desc": "Protección perimetral con filtrado de contenido e inspección profunda."
+    },
+    {
+      "id": "sg-camara-ip",
+      "img": "https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?w=600&q=80&auto=format&fit=crop",
+      "name": "Cámara IP domo 4MP",
+      "sku": "CAM-IP-4MP",
+      "cat": "seguridad",
+      "brand": "Dell",
+      "badge": "Vigilancia",
+      "desc": "Resolución 4MP, visión nocturna IR, exterior IP67. Compatible con NVR."
+    },
+    {
+      "id": "sg-nvr-8ch",
+      "name": "NVR 8 canales PoE",
+      "sku": "NVR-8CH",
+      "cat": "seguridad",
+      "brand": "Dell",
+      "desc": "Grabador de red 8 canales con PoE integrado. Soporta hasta 8MP por canal."
+    },
+    {
+      "id": "sg-control-acceso",
+      "name": "Control de acceso biométrico",
+      "sku": "CA-BIO",
+      "cat": "seguridad",
+      "brand": "Dell",
+      "desc": "Lector de huella y tarjeta RFID. Control de asistencia y puertas."
+    },
+    {
+      "id": "sv-cableado",
+      "name": "Cableado estructurado",
+      "sku": "SRV-CABLE",
+      "cat": "servicios",
+      "brand": "Giova",
+      "badge": "Servicio",
+      "desc": "Diseño e instalación de redes de datos categoría 6/6A certificadas."
+    },
+    {
+      "id": "sv-soporte",
+      "name": "Soporte técnico y mantenimiento",
+      "sku": "SRV-SOPORTE",
+      "cat": "servicios",
+      "brand": "Giova",
+      "desc": "Mantenimiento preventivo y correctivo de equipos informáticos."
+    },
+    {
+      "id": "sv-instalacion",
+      "name": "Instalación y configuración",
+      "sku": "SRV-INSTAL",
+      "cat": "servicios",
+      "brand": "Giova",
+      "desc": "Puesta en marcha de equipos, redes y sistemas de seguridad."
+    }
+  ],
+  "categories": [
+    {
+      "id": "all",
+      "label": "Todos los productos"
+    },
+    {
+      "id": "toner-hp",
+      "label": "Tóners HP"
+    },
+    {
+      "id": "toner-kyocera",
+      "label": "Tóners Kyocera"
+    },
+    {
+      "id": "equipos",
+      "label": "Equipos informáticos"
+    },
+    {
+      "id": "impresoras",
+      "label": "Impresoras"
+    },
+    {
+      "id": "repuestos",
+      "label": "Repuestos y componentes"
+    },
+    {
+      "id": "redes",
+      "label": "Equipos de redes"
+    },
+    {
+      "id": "seguridad",
+      "label": "Seguridad y vigilancia"
+    },
+    {
+      "id": "servicios",
+      "label": "Servicios"
+    }
+  ],
+  "icons": {
+    "toner-hp": "<svg viewBox=\"0 0 160 110\"><rect x=\"22\" y=\"46\" width=\"116\" height=\"40\" rx=\"9\" fill=\"#0A2342\"/><rect x=\"40\" y=\"32\" width=\"64\" height=\"18\" rx=\"3\" fill=\"#0096D6\"/><rect x=\"38\" y=\"58\" width=\"60\" height=\"18\" rx=\"4\" fill=\"#123A6B\"/><circle cx=\"118\" cy=\"66\" r=\"8\" fill=\"#2EC8DD\"/><text x=\"46\" y=\"46\" font-family=\"Arial\" font-size=\"11\" font-weight=\"bold\" fill=\"#fff\">HP</text></svg>",
+    "toner-kyocera": "<svg viewBox=\"0 0 160 110\"><rect x=\"20\" y=\"44\" width=\"120\" height=\"42\" rx=\"9\" fill=\"#081D3A\"/><rect x=\"34\" y=\"30\" width=\"72\" height=\"18\" rx=\"3\" fill=\"#E4002B\"/><rect x=\"34\" y=\"56\" width=\"66\" height=\"20\" rx=\"4\" fill=\"#11366B\"/><circle cx=\"120\" cy=\"66\" r=\"8\" fill=\"#14A3A8\"/><text x=\"38\" y=\"44\" font-family=\"Arial\" font-size=\"9\" font-weight=\"bold\" fill=\"#fff\">KYOCERA</text></svg>",
+    "equipos": "<svg viewBox=\"0 0 160 110\"><rect x=\"34\" y=\"22\" width=\"92\" height=\"58\" rx=\"6\" fill=\"#11366B\"/><rect x=\"40\" y=\"28\" width=\"80\" height=\"46\" rx=\"2\" fill=\"#2EC8DD\"/><rect x=\"50\" y=\"38\" width=\"44\" height=\"7\" rx=\"3.5\" fill=\"#fff\" opacity=\".9\"/><rect x=\"50\" y=\"52\" width=\"58\" height=\"5\" rx=\"2.5\" fill=\"#0A2342\" opacity=\".4\"/><path d=\"M22 80h116l-9 14H31z\" fill=\"#0A2342\"/></svg>",
+    "impresoras": "<svg viewBox=\"0 0 160 110\"><rect x=\"40\" y=\"20\" width=\"80\" height=\"24\" rx=\"3\" fill=\"#0A2342\"/><rect x=\"48\" y=\"26\" width=\"64\" height=\"12\" rx=\"2\" fill=\"#14A3A8\"/><rect x=\"28\" y=\"40\" width=\"104\" height=\"38\" rx=\"7\" fill=\"#11366B\"/><circle cx=\"116\" cy=\"52\" r=\"4\" fill=\"#2EC8DD\"/><rect x=\"40\" y=\"48\" width=\"34\" height=\"6\" rx=\"3\" fill=\"#2EC8DD\"/><rect x=\"44\" y=\"70\" width=\"72\" height=\"26\" rx=\"2\" fill=\"#fff\" stroke=\"#E3EDF7\" stroke-width=\"1.5\"/><rect x=\"52\" y=\"78\" width=\"40\" height=\"3.5\" rx=\"1.75\" fill=\"#0A2342\" opacity=\".35\"/><rect x=\"52\" y=\"86\" width=\"56\" height=\"3.5\" rx=\"1.75\" fill=\"#0A2342\" opacity=\".25\"/></svg>",
+    "repuestos": "<svg viewBox=\"0 0 160 110\"><rect x=\"44\" y=\"28\" width=\"72\" height=\"54\" rx=\"5\" fill=\"#0A2342\"/><rect x=\"56\" y=\"40\" width=\"48\" height=\"30\" rx=\"3\" fill=\"#14A3A8\"/><g stroke=\"#1B4F9C\" stroke-width=\"4\" stroke-linecap=\"round\"><path d=\"M56 18v8M72 18v8M88 18v8M104 18v8M56 82v8M72 82v8M88 82v8M104 82v8\"/></g></svg>",
+    "redes": "<svg viewBox=\"0 0 160 110\"><rect x=\"28\" y=\"58\" width=\"104\" height=\"24\" rx=\"5\" fill=\"#11366B\"/><circle cx=\"44\" cy=\"70\" r=\"4\" fill=\"#2EC8DD\"/><circle cx=\"58\" cy=\"70\" r=\"4\" fill=\"#2EC8DD\"/><circle cx=\"72\" cy=\"70\" r=\"4\" fill=\"#2EC8DD\"/><path d=\"M50 40c12-12 38-12 50 0M60 30c8-8 22-8 30 0\" stroke=\"#14A3A8\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/></svg>",
+    "seguridad": "<svg viewBox=\"0 0 160 110\"><rect x=\"30\" y=\"36\" width=\"56\" height=\"30\" rx=\"9\" fill=\"#0A2342\"/><circle cx=\"56\" cy=\"51\" r=\"10\" fill=\"#2EC8DD\"/><path d=\"M86 42l30-12v40l-30-12z\" fill=\"#14A3A8\"/><rect x=\"48\" y=\"66\" width=\"16\" height=\"22\" fill=\"#1B4F9C\"/><rect x=\"34\" y=\"88\" width=\"44\" height=\"7\" rx=\"3.5\" fill=\"#11366B\"/></svg>",
+    "servicios": "<svg viewBox=\"0 0 160 110\"><path d=\"M86 26a20 20 0 00-25 25L40 72a8 8 0 0011 11l21-21a20 20 0 0025-25l-12 12-12-3-3-12z\" fill=\"#14A3A8\"/><circle cx=\"98\" cy=\"84\" r=\"13\" fill=\"#0A2342\"/><circle cx=\"98\" cy=\"84\" r=\"5\" fill=\"#2EC8DD\"/></svg>"
+  },
+  "orbit": [
+    {
+      "n": "HP",
+      "c": "#0096D6",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6Mm2xdjfhFlhSV1MTa0Ai3wfjVHuE5PJsxQ&s"
+    },
+    {
+      "n": "Kyocera",
+      "c": "#E4002B",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSu323_8hg0UCy82DuKjskPE9DvF9oVD3JCA&s"
+    },
+    {
+      "n": "Epson",
+      "c": "#003399",
+      "url": "https://logo.clearbit.com/epson.com"
+    },
+    {
+      "n": "Canon",
+      "c": "#CC0000",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfTjb9F_7ANymzkHZjaqgxpQKlqrMArHDDHA&s"
+    },
+    {
+      "n": "Brother",
+      "c": "#0050A0",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUG6hxy4fHayzqofB1vxYRnPjm1wXAMXUqvQ&s"
+    },
+    {
+      "n": "Dell",
+      "c": "#007DB8",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfRZZr43W1uj9rKmPbHPgzsc8NazSRdVNWqw&s"
+    },
+    {
+      "n": "Lenovo",
+      "c": "#E2231A",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj5Gi-qgg7tkQp0JowdtundfXOlUve_-CGlg&s"
+    },
+    {
+      "n": "Cisco",
+      "c": "#1BA0D7",
+      "url": "https://logo.clearbit.com/cisco.com"
+    },
+    {
+      "n": "Xerox",
+      "c": "#D71921",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvWo3zh7RZ745jZenm9mtkMMfJ1DrkSsfBDw&s"
+    },
+    {
+      "n": "Lexmark",
+      "c": "#1BA548",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZhCIsFhC2ICQHVRKRi9_X9BTIevQg1npfMg&s"
+    },
+    {
+      "n": "Kingston",
+      "c": "#E2231A",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGZkm55tCs_T1-CkPUThyxsSf__RICuw-44A&s"
+    },
+    {
+      "n": "Asus",
+      "c": "#00539B",
+      "url": "https://images.seeklogo.com/logo-png/1/1/asus-logo-png_seeklogo-12597.png"
+    }
+  ]
+}

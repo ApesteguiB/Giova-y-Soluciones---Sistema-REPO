@@ -1,0 +1,60 @@
+<div
+  class="admin-shell"
+  [attr.data-tenant-theme]="branding.branding()?.tenantId ?? null"
+  [style.--tenant-primary]="branding.branding()?.primaryColor ?? null"
+  [style.--tenant-primary-contrast]="branding.branding()?.primaryContrast ?? null"
+  [style.--tenant-primary-text]="branding.branding()?.primaryTextColor ?? null"
+  [style.--tenant-secondary]="branding.branding()?.secondaryColor ?? null"
+  [style.--tenant-secondary-contrast]="branding.branding()?.secondaryContrast ?? null"
+  [style.--tenant-accent]="branding.branding()?.accentColor ?? null"
+  [style.--tenant-accent-contrast]="branding.branding()?.accentContrast ?? null"
+>
+  <aside class="admin-sidebar">
+    <a
+      routerLink="/operaciones"
+      class="admin-brand"
+      [attr.aria-label]="branding.branding()?.displayName ?? 'GIOVA'"
+    >
+      @if (branding.logoVisible()) {
+        <img
+          [src]="branding.logoUrl"
+          [alt]="branding.branding()?.displayName ?? 'Empresa'"
+          (error)="branding.logoLoadFailed()"
+        />
+      } @else if (branding.staticLogo()) {
+        <img
+          class="admin-brand-static"
+          [src]="branding.staticLogo()"
+          [alt]="branding.branding()?.displayName ?? 'Empresa'"
+        />
+      } @else {
+        <span class="admin-brand-monogram" aria-hidden="true">{{ branding.monogram() }}</span>
+        <span class="admin-brand-name">{{ branding.branding()?.displayName ?? 'GIOVA' }}</span>
+      }
+    </a>
+    <nav aria-label="Menú de operaciones">
+      @for (item of navigationItems(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/operaciones' }"
+          >{{ item.label }}</a
+        >
+      }
+    </nav>
+    <div class="admin-sidebar-foot">
+      <a routerLink="/">Volver a la web</a
+      ><button type="button" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <span>{{ branding.branding()?.displayName ?? 'Operaciones' }}</span>
+      <div class="admin-identity">
+        <strong>{{ auth.session()?.displayName || 'Trabajador' }}</strong>
+        <span class="admin-role">{{ auth.session()?.roleLabel || 'Sesión interna' }}</span>
+      </div>
+    </header>
+    <section class="admin-content"><router-outlet /></section>
+  </main>
+</div>

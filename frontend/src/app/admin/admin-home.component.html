@@ -1,0 +1,84 @@
+<div class="admin-page-head">
+  <span class="eyebrow">Operaciones</span>
+  <h1>Centro de operaciones</h1>
+  <p>Consulta las funciones disponibles para tu rol en la empresa seleccionada.</p>
+</div>
+@if (isAdmin()) {
+  <div class="admin-menu-grid">
+    <a routerLink="/operaciones/catalogo/productos" class="admin-menu-card"
+      ><strong>Productos</strong><span>Alta, edición y publicación del catálogo.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/catalogo/marcas" class="admin-menu-card"
+      ><strong>Marcas</strong><span>Organiza las marcas representadas.</span><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/catalogo/categorias" class="admin-menu-card"
+      ><strong>Categorías</strong><span>Mantén la navegación del catálogo.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/ventas/clientes" class="admin-menu-card"
+      ><strong>Clientes</strong><span>Gestiona la cartera de clientes de ventas.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/ventas/precios" class="admin-menu-card"
+      ><strong>Precios de referencia</strong
+      ><span>Consulta el historial de precios por producto.</span><b>Consultar →</b></a
+    >
+    <a routerLink="/operaciones/ventas/cotizaciones" class="admin-menu-card"
+      ><strong>Cotizaciones</strong><span>Crea, emite y consulta propuestas comerciales.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/tareas" class="admin-menu-card"
+      ><strong>Tareas</strong><span>Asigna y sigue pendientes del equipo.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/metas" class="admin-menu-card"
+      ><strong>Metas</strong><span>Define objetivos por trabajador y periodo.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/reportes" class="admin-menu-card"
+      ><strong>Reportes</strong><span>Descarga cotizaciones y contabilidad en XLSX.</span
+      ><b>Exportar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/auditoria" class="admin-menu-card"
+      ><strong>Auditoría</strong><span>Consulta el historial append-only de acciones.</span
+      ><b>Consultar →</b></a
+    >
+  </div>
+} @else if (canSales()) {
+  <div class="admin-menu-grid">
+    <a routerLink="/operaciones/ventas/clientes" class="admin-menu-card"
+      ><strong>Clientes</strong><span>Consulta y registra clientes asignados a ventas.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/ventas/precios" class="admin-menu-card"
+      ><strong>Precios de referencia</strong
+      ><span>Consulta el historial de precios de productos.</span><b>Consultar →</b></a
+    >
+    <a routerLink="/operaciones/ventas/cotizaciones" class="admin-menu-card"
+      ><strong>Cotizaciones</strong><span>Prepara propuestas y genera sus PDF.</span
+      ><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/tareas" class="admin-menu-card"
+      ><strong>Tareas</strong><span>Consulta y actualiza tus pendientes.</span><b>Gestionar →</b></a
+    >
+    <a routerLink="/operaciones/trabajo/metas" class="admin-menu-card"
+      ><strong>Metas</strong><span>Consulta el avance de tus objetivos.</span><b>Consultar →</b></a
+    >
+    @if (isAccountant()) {
+      <a routerLink="/operaciones/trabajo/reportes" class="admin-menu-card"
+        ><strong>Reportes</strong><span>Descarga el reporte interno de contabilidad.</span
+        ><b>Exportar →</b></a
+      >
+    }
+  </div>
+  <section class="admin-role-notice" aria-label="Módulos disponibles">
+    <strong>Permisos según rol</strong>
+    <p>Los cambios y acciones disponibles se validan en el servidor para tu rol.</p>
+  </section>
+} @else {
+  <section class="admin-role-notice" aria-label="Módulos disponibles">
+    <strong>Sesión iniciada</strong>
+    <p>Los módulos de tu rol se habilitarán progresivamente en las siguientes fases.</p>
+  </section>
+}

@@ -1,0 +1,143 @@
+:host {
+  display: block;
+}
+.module-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 24px 0 8px;
+  border-bottom: 1px solid var(--ice-200);
+}
+.module-tabs a {
+  color: var(--ink-600);
+  padding: 11px 14px;
+  border-bottom: 3px solid transparent;
+  font-weight: 700;
+  text-decoration: none;
+}
+.module-tabs a:hover,
+.module-tabs a.active {
+  color: var(--navy-800);
+  border-color: var(--teal-500);
+}
+.priority {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--tenant-soft, #eaf3ff);
+  color: var(--blue-600);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.priority.high {
+  background: #fff0df;
+  color: #a85800;
+}
+.progress-line {
+  width: 150px;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--ice-200);
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.progress-line span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal-500);
+}
+.report-card {
+  max-width: 920px;
+  background: #fff;
+  border: 1px solid var(--ice-200);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  margin-top: 22px;
+}
+.report-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.report-card h2 {
+  color: var(--navy-800);
+  margin: 6px 0 0;
+}
+.report-limit {
+  color: var(--ink-600);
+  font-size: 0.85rem;
+}
+.report-filters {
+  margin-top: 22px;
+}
+.report-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.assignment-note {
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  padding: 10px 12px;
+  border: 1px solid var(--ice-200);
+  border-radius: 9px;
+  background: var(--ice-100);
+  color: var(--ink-600);
+  font-size: 0.88rem;
+}
+.assignment-note strong {
+  color: var(--navy-800);
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 0;
+  color: var(--ink-600);
+  font-size: 0.88rem;
+}
+.pagination button {
+  border: 1px solid var(--ice-200);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--navy-800);
+}
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 650px) {
+  .module-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .module-tabs a {
+    white-space: nowrap;
+  }
+  .pagination {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .progress-line {
+    width: 110px;
+  }
+}

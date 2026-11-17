@@ -1,0 +1,254 @@
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" style="color: var(--cyan-400)">Catálogo</span>
+    <h1>Nuestros productos y servicios</h1>
+    <p>{{ catalogIntro() }}</p>
+  </div>
+</section>
+
+<!-- TIENDA -->
+<div class="container">
+  <div class="shop-layout">
+    <!-- Filtros -->
+    <aside class="filters" aria-label="Filtros de productos">
+      <div class="search-box">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="M21 21l-4.3-4.3" />
+        </svg>
+        <input
+          #searchInput
+          type="text"
+          [value]="search()"
+          (input)="onSearch(searchInput.value)"
+          placeholder="Buscar producto o SKU..."
+          aria-label="Buscar producto"
+          maxlength="60"
+          autocomplete="off"
+        />
+      </div>
+      <h3>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--teal-500)"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M22 3H2l8 9.46V19l4 2v-8.54z" />
+        </svg>
+        Categorías
+      </h3>
+      <div class="filter-group">
+        <button
+          class="filter-btn"
+          type="button"
+          [class.active]="selectedCategory() === 'all'"
+          (click)="selectCategory('all')"
+        >
+          Todos los productos<span class="count">{{ categoryCount('all') }}</span>
+        </button>
+        @for (category of categories(); track category.id) {
+          <button
+            class="filter-btn"
+            type="button"
+            [class.active]="selectedCategory() === category.slug"
+            (click)="selectCategory(category.slug)"
+          >
+            {{ category.name }}<span class="count">{{ category.productCount }}</span>
+          </button>
+        }
+      </div>
+    </aside>
+
+    <!-- Resultados -->
+    <main>
+      <div class="results-bar">
+        <span
+          ><b>{{ result().totalItems }}</b> productos disponibles</span
+        >
+        <span style="font-size: 0.85rem; color: var(--ink-600)">{{ priceNote() }}</span>
+      </div>
+
+      @if (loading()) {
+        <div class="skeleton-grid">
+          @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+            <div class="skeleton"></div>
+          }
+        </div>
+      } @else if (failed()) {
+        <div class="state error">
+          <strong>No se pudo cargar el catálogo.</strong>
+          <p>Verifique que el servicio esté disponible e inténtelo nuevamente.</p>
+          <button class="btn btn-blue" type="button" (click)="load()">Reintentar</button>
+        </div>
+      } @else if (!result().items.length) {
+        <div class="products-grid">
+          <div class="empty-state">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+            <p>
+              No encontramos productos con esos criterios.<br />Pruebe con otra palabra o categoría.
+            </p>
+            @if (search()) {
+              <button class="btn btn-blue" type="button" (click)="clearSearch()">
+                Limpiar búsqueda
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="products-grid">
+          @for (product of result().items; track product.id) {
+            <article class="prod-card">
+              <div class="prod-img">
+                @if (product.badge) {
+                  <span
+                    class="prod-badge"
+                    [class.teal]="
+                      product.category.slug.startsWith('toner') ||
+                      product.category.slug === 'impresoras'
+                    "
+                    >{{ product.badge }}</span
+                  >
+                }
+                @if (hasPhoto(product)) {
+                  <img
+                    class="prod-photo"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    loading="lazy"
+                    (error)="onImageError(product)"
+                  />
+                } @else {
+                  <app-product-icon [iconKey]="product.category.iconKey" />
+                }
+              </div>
+              <div class="prod-body">
+                <span class="brand-tag">{{ product.brand.name }}</span>
+                <h3>{{ product.name }}</h3>
+                <span class="sku">SKU: {{ product.sku }}</span>
+                <p>{{ product.description }}</p>
+              </div>
+              <div class="prod-actions">
+                <button
+                  class="btn-prod"
+                  [class.btn-prod-brand]="!site.whatsappLink()"
+                  type="button"
+                  #consultButton
+                  (click)="openProduct(product, consultButton)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.58-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35z"
+                    />
+                  </svg>
+                  {{ consultLabel() }}
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (result().totalPages > 1) {
+          <div class="pagination">
+            <button
+              type="button"
+              class="btn btn-blue"
+              [disabled]="result().page === 0"
+              (click)="previousPage()"
+            >
+              ← Anterior
+            </button>
+            <span>Página {{ result().page + 1 }} de {{ result().totalPages }}</span>
+            <button
+              type="button"
+              class="btn btn-blue"
+              [disabled]="result().page + 1 >= result().totalPages"
+              (click)="nextPage()"
+            >
+              Siguiente →
+            </button>
+          </div>
+        }
+      }
+    </main>
+  </div>
+</div>
+
+<!-- MODAL WHATSAPP -->
+@if (selectedProduct(); as product) {
+  <div class="modal-overlay open" role="presentation" (click)="closeProduct()">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <button class="modal-close" type="button" aria-label="Cerrar" (click)="closeProduct()">
+        &times;
+      </button>
+      <div class="m-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.58-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35z"
+          />
+        </svg>
+      </div>
+      <h3 id="modalTitle">{{ consultLabel() }}</h3>
+      @if (productLink(product)) {
+        <p>Le redirigiremos a WhatsApp con un mensaje listo para enviar sobre este producto:</p>
+      } @else {
+        <p>
+          Envíenos el requerimiento por el formulario de contacto y le respondemos con la
+          cotización:
+        </p>
+      }
+      <div class="m-prod">{{ product.name }} · SKU: {{ product.sku }}</div>
+      @if (productLink(product); as link) {
+        <a
+          class="btn btn-wa"
+          [href]="link"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="width: 100%; justify-content: center"
+        >
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <path
+              d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.58-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35zM12.04 21.5h-.01a9.4 9.4 0 01-4.8-1.32l-.34-.2-3.56.93.95-3.47-.22-.36a9.42 9.42 0 1117.46-4.99 9.4 9.4 0 01-9.48 9.41z"
+            />
+          </svg>
+          Abrir WhatsApp
+        </a>
+      } @else {
+        <a
+          class="btn btn-primary"
+          routerLink="/contacto"
+          [queryParams]="{ asunto: 'Cotización de productos' }"
+          fragment="formulario"
+          style="width: 100%; justify-content: center"
+          (click)="closeProduct()"
+          >Ir al formulario de contacto</a
+        >
+      }
+    </div>
+  </div>
+}

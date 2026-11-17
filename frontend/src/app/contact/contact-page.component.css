@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.alert-ok small {
+  color: #157a52;
+  font-size: 0.8rem;
+}

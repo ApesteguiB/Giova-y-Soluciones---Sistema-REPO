@@ -1,0 +1,15 @@
+{
+  "uri": "https://example.test/ocds/packages/missing-required.json",
+  "version": "1.1",
+  "publishedDate": "2026-09-15T15:00:00Z",
+  "publisher": { "name": "Publicador de fixture" },
+  "releases": [
+    {
+      "id": "ocds-PE-TEST-000003-20260915",
+      "date": "2026-09-15T15:00:00Z",
+      "tag": ["tender"],
+      "initiationType": "tender",
+      "tender": { "title": "Fixture sin OCID" }
+    }
+  ]
+}
